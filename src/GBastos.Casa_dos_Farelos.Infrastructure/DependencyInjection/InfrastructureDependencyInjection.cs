@@ -1,6 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Security;
 using GBastos.Casa_dos_Farelos.Infrastructure.Caching;
+using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
@@ -48,6 +49,12 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.Scan(scan => scan
                 .FromApplicationDependencies()
                 .AddClasses(c => c.AssignableTo(typeof(IEventHandler<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            services.Scan(scan => scan
+                .FromAssemblyOf<IDataMigration>()
+                .AddClasses(c => c.AssignableTo<IDataMigration>())
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 

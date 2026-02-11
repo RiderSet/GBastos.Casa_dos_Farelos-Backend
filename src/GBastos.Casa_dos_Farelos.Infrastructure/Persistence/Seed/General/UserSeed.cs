@@ -1,7 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 
 public static class UserSeed
 {

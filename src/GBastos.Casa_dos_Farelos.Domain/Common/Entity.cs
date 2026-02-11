@@ -9,7 +9,7 @@ public abstract class Entity
     private readonly List<IDomainEvent> _events = new();
     public IReadOnlyCollection<IDomainEvent> Events => _events;
 
-    protected void Raise(IDomainEvent @event)
+    protected void AddEvent(IDomainEvent @event)
         => _events.Add(@event);
 
     public void ClearEvents()

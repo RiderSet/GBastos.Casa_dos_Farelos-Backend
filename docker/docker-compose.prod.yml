@@ -1,0 +1,48 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD_FILE: /run/secrets/sql_password
+    secrets:
+      - sql_password
+    volumes:
+      - sql_data:/var/opt/mssql
+    deploy:
+      replicas: 1
+
+  api:
+    image: casadosfarelos/api:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DB_PASSWORD_FILE: /run/secrets/sql_password
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+    secrets:
+      - sql_password
+      - jwt_secret
+      - redis_password
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        parallelism: 1
+        delay: 10s
+    depends_on:
+      - sqlserver
+
+secrets:
+  sql_password:
+    external: true
+  jwt_secret:
+    external: true
+  redis_password:
+    external: true
+
+volumes:
+  sql_data:
+  
+  
+  # docker swarm init
+  # docker stack deploy -c docker-compose.prod.yml killwangy

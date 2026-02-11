@@ -1,6 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
@@ -18,6 +19,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ItemPedido> ItensPedido => Set<ItemPedido>();
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
+    public DbSet<DataSeedHistory> DataSeedHistory => Set<DataSeedHistory>();
 
     public DbSet<OutboxMessage> Outbox => Set<OutboxMessage>();
 
@@ -73,6 +75,10 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithMany(c => c.Produtos)
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DataSeedHistory>()
+            .ToTable("__DataSeedHistory")
+            .HasKey(x => x.Id);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
