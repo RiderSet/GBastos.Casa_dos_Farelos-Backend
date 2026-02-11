@@ -23,7 +23,6 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // ======== Validators & MediatR ========
-//builder.Services.AddValidatorsFromAssemblyContaining<CriarClientePFValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
 builder.Services.AddMediatR(cfg =>
@@ -35,7 +34,6 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
 
-//Console.WriteLine("CONNECTION STRING = " + builder.Configuration.GetConnectionString("Conn"));
 // ======== Database ========
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
