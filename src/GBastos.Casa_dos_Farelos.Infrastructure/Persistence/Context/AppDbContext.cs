@@ -14,6 +14,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ClientePF> ClientesPF => Set<ClientePF>();
     public DbSet<ClientePJ> ClientesPJ => Set<ClientePJ>();
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
+    public DbSet<Funcionario> Funcionarios => Set<Funcionario>();
     public DbSet<Venda> Vendas => Set<Venda>();
     public DbSet<ItemVenda> ItensVenda => Set<ItemVenda>();
     public DbSet<ItemPedido> ItensPedido => Set<ItemPedido>();

@@ -1,48 +1,39 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+
+namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePF : Pessoa
 {
-    public string CPF { get; private set; } = string.Empty;
-    public string Telefone { get; private set; } = string.Empty;
-    public DateTime DataNascimento { get; private set; }
-    public DateTime CriadoEm { get; private set; }
+    public string CPF { get; private set; } = null!;
+    public DateTime? DtNascimento { get; private set; }
 
-    private ClientePF() { } // EF
+    private ClientePF() { }
 
-    public ClientePF(string nome, string email, string cpf)
-        : base(nome, email, cpf) // cpf é o documento da Pessoa
+    public ClientePF(string nome, string telefone, string email, string cpf, DateTime dtCadastro)
+        : base(nome, telefone, email)
     {
         SetCpf(cpf);
     }
 
-    public ClientePF(string nome, string cpf, string telefone, string email, DateTime dataNascimento)
+    public void Atualizar(string nome, string telefone, string email, string cpf, DateTime dtCadastro)
     {
-        Id = Guid.NewGuid();
-        Nome = nome;
-        CPF = cpf;
-        Telefone = telefone;
-        Email = email;
-        DataNascimento = dataNascimento;
-        CriadoEm = DateTime.UtcNow;
-    }
-
-    public void AtualizarDados(string nome, string cpf, string telefone, string email, DateTime dataNascimento)
-    {
-        Nome = nome;
-        Telefone = telefone;
-        CPF = cpf;
-        Email = email;
-        DataNascimento = dataNascimento;
+        base.Atualizar(nome, telefone, email, dtCadastro);
+        SetCpf(cpf);
     }
 
     private void SetCpf(string cpf)
     {
         if (string.IsNullOrWhiteSpace(cpf))
-            throw new ArgumentException("CPF é obrigatório");
+            throw new DomainException("CPF é obrigatório");
+
+        cpf = SomenteNumeros(cpf);
 
         if (cpf.Length != 11)
-            throw new ArgumentException("CPF inválido");
+            throw new DomainException("CPF inválido");
 
         CPF = cpf;
     }
+
+    private static string SomenteNumeros(string valor)
+        => new string(valor.Where(char.IsDigit).ToArray());
 }

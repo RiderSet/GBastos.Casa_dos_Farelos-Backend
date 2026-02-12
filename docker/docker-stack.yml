@@ -75,3 +75,7 @@ secrets:
     external: true
   rabbit_password:
     external: true
+    
+    
+  # docker swarm init
+  # docker stack deploy -c docker-stack.yml casa-dos-farelos

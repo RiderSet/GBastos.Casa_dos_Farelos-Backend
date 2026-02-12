@@ -33,6 +33,6 @@ public class Usuario : Entity
 
         Perfil = role;
 
-        AddEvent(new UsuarioRoleAlteradaEvent(Id, role));
+        AddDomainEvent(new UsuarioRoleAlteradaEvent(Id, role));
     }
 }

@@ -1,8 +1,8 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Commands.Clientes.CriarCliente;
+using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using MediatR;
-
-namespace GBastos.Casa_dos_Farelos.Application.Commands.Clientes.CriarCliente.Handlers;
 
 public sealed class CriarClientePFHandler : IRequestHandler<CriarClientePFCommand, Guid>
 {
@@ -16,15 +16,16 @@ public sealed class CriarClientePFHandler : IRequestHandler<CriarClientePFComman
     public async Task<Guid> Handle(CriarClientePFCommand request, CancellationToken ct)
     {
         var existe = await _repo.ObterPorCpfAsync(request.CPF, ct);
-        if (existe != null)
-            throw new Exception("CPF já cadastrado.");
+
+        if (existe is not null)
+            throw new DomainException("Já existe um cliente cadastrado com este CPF.");
 
         var cliente = new ClientePF(
             request.Nome,
-            request.CPF,
             request.Telefone,
             request.Email,
-            request.DataNascimento
+            request.CPF,
+            request.DtNascimento
         );
 
         await _repo.AddAsync(cliente, ct);

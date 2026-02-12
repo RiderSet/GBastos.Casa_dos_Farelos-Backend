@@ -22,7 +22,7 @@ public sealed class CriarClientePFValidator : AbstractValidator<CriarClientePFCo
             .EmailAddress()
             .WithMessage("E-mail inválido.");
 
-        RuleFor(x => x.DataNascimento)
+        RuleFor(x => x.DtNascimento)
             .LessThan(DateTime.Today)
             .WithMessage("Data de nascimento inválida.");
     }

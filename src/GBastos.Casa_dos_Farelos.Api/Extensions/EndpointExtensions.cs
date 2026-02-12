@@ -12,7 +12,8 @@ namespace GBastos.Casa_dos_Farelos.Api.Extensions
         public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
         {
             app.MapAuthEndpoints();
-            app.MapClienteEndpoints();
+            app.MapClientePFEndpoints();
+            app.MapClientePJEndpoints();
             app.MapProdutoEndpoints();
             app.MapVendaEndpoints();
             app.MapCompraEndpoints();

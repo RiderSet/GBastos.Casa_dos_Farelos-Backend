@@ -1,30 +1,51 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
 
-public class ClientePJ : Pessoa
+namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+
+public sealed class ClientePJ : Pessoa
 {
-    public string CNPJ { get; private set; } = string.Empty;
+    public string CNPJ { get; private set; } = null!;
+    public string Contato { get; private set; } = null!;
 
-    protected ClientePJ() { } // EF Core
+    private ClientePJ() { } // EF
 
-    public ClientePJ(string nome, string email, string cnpj)
-        : base(nome, email, cnpj) // CNPJ é o documento da Pessoa
+    public ClientePJ(string nome, string telefone, string email, string cnpj, string contato)
+        : base(nome, telefone, email)
     {
-        SetCNPJ(cnpj);
+        SetCnpj(cnpj);
+        SetContato(contato);
     }
 
-    public void AtualizarDados(string nome, string email)
+    public void Atualizar(string nome, string telefone, string email, string contato, DateTime dtCadastro)
     {
-        Atualizar(nome, email, CNPJ); // método protegido da Pessoa
+        base.Atualizar(nome, telefone, email, dtCadastro);
+        SetContato(contato);
     }
 
-    private void SetCNPJ(string cnpj)
+    private void SetCnpj(string cnpj)
     {
+        if (CNPJ != null)
+            throw new DomainException("CNPJ não pode ser alterado");
+
         if (string.IsNullOrWhiteSpace(cnpj))
-            throw new ArgumentException("CNPJ é obrigatório");
+            throw new DomainException("CNPJ obrigatório");
+
+        cnpj = SomenteNumeros(cnpj);
 
         if (cnpj.Length != 14)
-            throw new ArgumentException("CNPJ inválido");
+            throw new DomainException("CNPJ inválido");
 
         CNPJ = cnpj;
     }
+
+    private void SetContato(string contato)
+    {
+        if (string.IsNullOrWhiteSpace(contato))
+            throw new DomainException("Contato obrigatório");
+
+        Contato = contato.Trim();
+    }
+
+    private static string SomenteNumeros(string valor)
+        => new string(valor.Where(char.IsDigit).ToArray());
 }

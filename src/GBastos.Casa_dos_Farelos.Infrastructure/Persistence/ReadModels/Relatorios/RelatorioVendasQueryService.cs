@@ -3,7 +3,7 @@ using GBastos.Casa_dos_Farelos.Application.Dtos;
 using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using System.Data;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.ReadModels.Relatorios;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 
 public sealed class RelatorioVendasQueryService : IRelatorioVendasQueryService
 {

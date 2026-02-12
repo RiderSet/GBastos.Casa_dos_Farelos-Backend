@@ -28,8 +28,8 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Configuration
             builder.Property(x => x.Email)
                 .HasMaxLength(150);
 
-            builder.Property(x => x.DataNascimento).IsRequired();
-            builder.Property(x => x.CriadoEm).IsRequired();
+            //builder.Property(x => x.DataNascimento).IsRequired();
+            //builder.Property(x => x.CriadoEm).IsRequired();
         }
     }
 }

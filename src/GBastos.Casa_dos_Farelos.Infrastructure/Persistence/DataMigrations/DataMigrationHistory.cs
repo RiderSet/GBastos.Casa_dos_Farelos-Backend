@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Migrations.Data;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 
 public class DataMigrationHistory
 {

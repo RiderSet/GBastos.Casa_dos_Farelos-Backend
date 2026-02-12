@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
@@ -18,6 +19,9 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
             group.MapGet("/ranking-compras", RankingCompras);
             group.MapGet("/ranking-vendas", RankingVendas);
             group.MapGet("/ranking-pedidos", RankingPedidos);
+        //  group.MapGet("/total-comprado-cliente", TotalCompradoCliente);
+            group.MapGet("/funcionarios-mais-vendem", FuncionariosMaisVendem);
+        //  group.MapGet("/fornecedores-por-produtos", FornecedoresPorProduto);
 
             return app;
         }
@@ -130,6 +134,25 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
                     Receita = g.Sum(x => x.SubTotal)
                 })
                 .OrderByDescending(x => x.QuantidadeVendida)
+                .ToListAsync();
+
+            return Results.Ok(ranking);
+        }
+
+        private static async Task<IResult> FuncionariosMaisVendem(AppDbContext db)
+        {
+            var ranking = await db.Vendas
+                .AsNoTracking()
+                .GroupBy(v => new { v.FuncionarioId, v.Funcionario.Nome })
+                .Select(g => new FuncionarioMaisVendeuDto
+                {
+                    FuncionarioId = g.Key.FuncionarioId,
+                    Nome = g.Key.Nome,
+                    TotalVendido = g.Sum(x => x.TotalVenda),
+                    QuantidadeVendas = g.Count()
+                })
+                .OrderByDescending(x => x.TotalVendido)
+                .Take(10)
                 .ToListAsync();
 
             return Results.Ok(ranking);

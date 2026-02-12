@@ -1,5 +1,7 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Application.Queries.Produtos.ObetrProdutos;
+using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Produtos;
@@ -105,6 +107,12 @@ public static class ProdutoEndpoints
         await db.SaveChangesAsync();
 
         return Results.NoContent();
+    }
+
+    private static async Task<IResult> ProdutosMaisVendidos(IMediator mediator)
+    {
+        var result = await mediator.Send(new ProdutosMaisVendidosQuery());
+        return Results.Ok(result);
     }
 
     // ================= REQUEST/RESPONSE =================

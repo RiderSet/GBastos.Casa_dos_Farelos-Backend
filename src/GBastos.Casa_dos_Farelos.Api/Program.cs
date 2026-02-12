@@ -2,16 +2,18 @@
 using GBastos.Casa_dos_Farelos.Api.Extensions;
 using GBastos.Casa_dos_Farelos.Application.Common;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
+using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
 using GBastos.Casa_dos_Farelos.Infrastructure.Extensioons;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Migrations;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using GBastos.Casa_dos_Farelos.Infrastructure.Security;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -160,6 +162,24 @@ using (var scope = app.Services.CreateScope())
 {
     await DistributedDbInitializer.EnsureMigratedAsync(scope.ServiceProvider, CancellationToken.None);
 }
+
+app.UseExceptionHandler(handler =>
+{
+    handler.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        if (exception is DomainException domain)
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsJsonAsync(new { erro = domain.Message });
+            return;
+        }
+
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { erro = "Erro interno no servidor" });
+    });
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

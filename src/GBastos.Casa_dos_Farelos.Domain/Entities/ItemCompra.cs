@@ -9,7 +9,9 @@ public class ItemCompra : Entity
 
     public int Quantidade { get; private set; }
     public decimal CustoUnitario { get; private set; }
-    public decimal SubTotal { get; private set; }
+
+    // calculado SEMPRE
+    public decimal SubTotal => Quantidade * CustoUnitario;
 
     public Compra Compra { get; private set; } = null!;
     public Produto Produto { get; private set; } = null!;
@@ -30,10 +32,8 @@ public class ItemCompra : Entity
         ProdutoId = produtoId;
         Quantidade = quantidade;
         CustoUnitario = custoUnitario;
-        SubTotal = CalcularSubtotal();
     }
 
-    // 🔥 ESTE É O MÉTODO QUE ESTÁ FALTANDO
     internal void DefinirCompra(Guid compraId)
     {
         if (compraId == Guid.Empty)
@@ -42,6 +42,19 @@ public class ItemCompra : Entity
         CompraId = compraId;
     }
 
-    private decimal CalcularSubtotal()
-        => Quantidade * CustoUnitario;
+    internal void SomarQuantidade(int quantidade, decimal custoUnitario)
+    {
+        if (quantidade <= 0)
+            throw new DomainException("Quantidade deve ser maior que zero.");
+
+        if (custoUnitario <= 0)
+            throw new DomainException("Custo unitário deve ser maior que zero.");
+
+        // regra: mesma compra + mesmo produto = acumula quantidade
+        Quantidade += quantidade;
+
+        // regra de negócio comum em compras:
+        // o último custo pago vira o custo atual do lote
+        CustoUnitario = custoUnitario;
+    }
 }

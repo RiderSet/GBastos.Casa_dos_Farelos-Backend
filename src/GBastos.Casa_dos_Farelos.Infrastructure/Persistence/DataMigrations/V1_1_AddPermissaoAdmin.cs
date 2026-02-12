@@ -2,7 +2,7 @@
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Migrations.Data;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 
 public class V1_1_AddPermissaoAdmin : IDataMigration
 {

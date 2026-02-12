@@ -11,31 +11,33 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken ct = default)
     {
-        var db = eventData.Context!;
-        var messages = new List<OutboxMessage>();
+        var db = eventData.Context;
+        if (db is null) return base.SavingChangesAsync(eventData, result, ct);
 
         var entities = db.ChangeTracker
             .Entries<Entity>()
-            .Where(x => x.Entity.Events.Any())
-            .Select(x => x.Entity);
+            .Where(e => e.Entity.DomainEvents.Any())
+            .ToList();
 
-        foreach (var entity in entities)
+        var outboxMessages = new List<OutboxMessage>();
+
+        foreach (var entry in entities)
         {
-            foreach (var domainEvent in entity.Events)
+            foreach (var domainEvent in entry.Entity.DomainEvents)
             {
-                var message = new OutboxMessage(
-                    domainEvent.GetType().FullName!,   // tipo completo é importante
-                    JsonSerializer.Serialize(domainEvent)
+                outboxMessages.Add(
+                    OutboxMessage.Create(
+                        domainEvent,
+                        domainEvent.Id,
+                        domainEvent.OccurredOn
+                    )
                 );
-
-                messages.Add(message);
             }
 
-            entity.ClearEvents();
+            entry.Entity.ClearDomainEvents();
         }
 
-        if (messages.Count > 0)
-            db.Set<OutboxMessage>().AddRange(messages);
+        db.Set<OutboxMessage>().AddRange(outboxMessages);
 
         return base.SavingChangesAsync(eventData, result, ct);
     }

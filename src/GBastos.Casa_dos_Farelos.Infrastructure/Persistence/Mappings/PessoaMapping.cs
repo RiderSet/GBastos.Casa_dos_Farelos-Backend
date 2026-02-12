@@ -13,17 +13,22 @@ public class PessoaMapping : IEntityTypeConfiguration<Pessoa>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Nome)
-               .HasMaxLength(150)
-               .IsRequired();
+            .HasMaxLength(150)
+            .IsRequired();
 
-        builder.Property(x => x.Documento)
-               .HasMaxLength(20)
-               .IsRequired();
+        builder.Property(x => x.Telefone)
+            .HasMaxLength(20)
+            .IsRequired();
 
+        builder.Property(x => x.Email)
+            .HasMaxLength(150)
+            .IsRequired();
+
+        // HERANÇA (TPH)
         builder.HasDiscriminator<string>("TipoPessoa")
-               .HasValue<ClientePF>("PF")
-               .HasValue<ClientePJ>("PJ")
-               .HasValue<Fornecedor>("FOR")
-               .HasValue<Funcionario>("FUNC");
+            .HasValue<ClientePF>("PF")
+            .HasValue<ClientePJ>("PJ")
+            .HasValue<Fornecedor>("FOR")
+            .HasValue<Funcionario>("FUNC");
     }
 }

@@ -24,7 +24,7 @@ public sealed class CriarCompraHandler : IRequestHandler<CriarCompraCommand, Gui
             throw new DomainException("Fornecedor não encontrado.");
 
         // A entidade nasce aqui
-        var compra = Compra.CriarCompra(request.FornecedorId);
+        var compra = Compra.Criar(request.FornecedorId);
 
         foreach (var item in request.Itens)
         {

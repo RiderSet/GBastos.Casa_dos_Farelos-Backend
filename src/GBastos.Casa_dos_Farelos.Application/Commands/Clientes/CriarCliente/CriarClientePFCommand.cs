@@ -7,5 +7,5 @@ public sealed record CriarClientePFCommand(
     string CPF,
     string Telefone,
     string Email,
-    DateTime DataNascimento
+    DateTime DtNascimento
 ) : IRequest<Guid>;

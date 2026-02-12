@@ -44,5 +44,4 @@ volumes:
   sql_data:
   
   
-  # docker swarm init
-  # docker stack deploy -c docker-compose.prod.yml killwangy
+  # docker compose -f docker-compose.prod.yml up -d

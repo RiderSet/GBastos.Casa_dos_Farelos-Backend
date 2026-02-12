@@ -22,4 +22,8 @@
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Domain\GBastos.Casa_dos_Farelos.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\Fornecedores\Handlers\" />
+  </ItemGroup>
+
 </Project>

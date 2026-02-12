@@ -6,12 +6,12 @@ public abstract class Entity
 {
     public Guid Id { get; protected set; } = Guid.NewGuid();
 
-    private readonly List<IDomainEvent> _events = new();
-    public IReadOnlyCollection<IDomainEvent> Events => _events;
+    private readonly List<IDomainEvent> _domainEvents = new();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    protected void AddEvent(IDomainEvent @event)
-        => _events.Add(@event);
+    protected void AddDomainEvent(IDomainEvent domainEvent)
+        => _domainEvents.Add(domainEvent);
 
-    public void ClearEvents()
-        => _events.Clear();
+    public void ClearDomainEvents()
+        => _domainEvents.Clear();
 }

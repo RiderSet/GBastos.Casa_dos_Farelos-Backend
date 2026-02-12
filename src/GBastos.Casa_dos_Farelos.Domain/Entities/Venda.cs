@@ -5,18 +5,20 @@ namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 public class Venda : Entity
 {
     public Guid ClienteId { get; private set; }
+
     public Guid FuncionarioId { get; private set; }
+    public Funcionario Funcionario { get; private set; }
 
     public DateTime DataVenda { get; private set; }
 
     private readonly List<ItemVenda> _itens = new();
-    public IReadOnlyCollection<ItemVenda> Itens => _itens.AsReadOnly();
+    public IReadOnlyCollection<ItemVenda> Itens => _itens;
 
     public decimal TotalVenda => _itens.Sum(i => i.SubTotal);
 
     public decimal TaxaEntrega { get; private set; }
 
-    protected Venda() { }
+    protected Venda() { } // EF
 
     private Venda(Guid clienteId, Guid funcionarioId)
     {
@@ -31,30 +33,25 @@ public class Venda : Entity
         DataVenda = DateTime.UtcNow;
     }
 
-    public static Venda Criar(Guid clienteId, Guid funcionarioId, IEnumerable<ItemVenda> itens)
+    // 🔥 FACTORY CORRETO
+    public static Venda Criar(Guid clienteId, Guid funcionarioId, List<ItemVenda> itens)
+        => new Venda(clienteId, funcionarioId);
+
+    // comportamento do agregado
+    public void AdicionarItem(Guid produtoId, int quantidade, decimal precoUnitario)
     {
-        var venda = new Venda(clienteId, funcionarioId);
+        if (quantidade <= 0)
+            throw new DomainException("Quantidade inválida.");
 
-        foreach (var item in itens)
-            venda.AdicionarItem(item);
+        if (precoUnitario <= 0)
+            throw new DomainException("Preço inválido.");
 
-        if (!venda._itens.Any())
-            throw new DomainException("Venda deve possuir ao menos um item.");
-
-        return venda;
-    }
-
-    private void AdicionarItem(ItemVenda item)
-    {
-        if (item == null)
-            throw new DomainException("Item inválido.");
-
+        var item = new ItemVenda(produtoId, quantidade, precoUnitario);
         item.DefinirVenda(Id);
+
         _itens.Add(item);
     }
 
     public void AplicarEntrega()
-    {
-        TaxaEntrega = TotalVenda * 0.10m;
-    }
+        => TaxaEntrega = TotalVenda * 0.10m;
 }

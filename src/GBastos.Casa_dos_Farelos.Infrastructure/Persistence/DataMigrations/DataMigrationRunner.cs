@@ -1,10 +1,9 @@
 ﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Migrations;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 
 public static class DataMigrationRunner
 {

@@ -2,7 +2,7 @@
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Migrations.Data;
+namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 
 public class V1_0_CreateDefaultCategorias : IDataMigration
 {
