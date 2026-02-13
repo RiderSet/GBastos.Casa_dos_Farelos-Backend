@@ -8,7 +8,7 @@ public class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessage>
 {
     public void Configure(EntityTypeBuilder<OutboxMessage> builder)
     {
-        builder.ToTable("Outbox");
+        builder.ToTable("OutboxMessages");
 
         builder.HasKey(x => x.Id);
 
@@ -16,7 +16,7 @@ public class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessage>
             .HasMaxLength(200)
             .IsRequired();
 
-        builder.Property(x => x.Payload)
+        builder.Property(x => x.Payload).HasColumnType("nvarchar(max)")
             .IsRequired();
 
         builder.Property(x => x.OccurredOn)

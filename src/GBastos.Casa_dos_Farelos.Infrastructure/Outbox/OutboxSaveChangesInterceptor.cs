@@ -1,29 +1,34 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
 public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
 {
+    private readonly List<Entity> _entitiesWithEvents = new();
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
         CancellationToken ct = default)
     {
         var db = eventData.Context;
+
         if (db is null) return base.SavingChangesAsync(eventData, result, ct);
 
         var entities = db.ChangeTracker
             .Entries<Entity>()
-            .Where(e => e.Entity.DomainEvents.Any())
+            .Where(e => e.Entity.IntegrationEvent.Any())
+            .Select(e => e.Entity)
             .ToList();
+
+        _entitiesWithEvents.AddRange(entities);
 
         var outboxMessages = new List<OutboxMessage>();
 
-        foreach (var entry in entities)
+        foreach (var entity in entities)
         {
-            foreach (var domainEvent in entry.Entity.DomainEvents)
+            foreach (var domainEvent in entity.IntegrationEvent)
             {
                 outboxMessages.Add(
                     OutboxMessage.Create(
@@ -33,8 +38,6 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
                     )
                 );
             }
-
-            entry.Entity.ClearDomainEvents();
         }
 
         db.Set<OutboxMessage>().AddRange(outboxMessages);

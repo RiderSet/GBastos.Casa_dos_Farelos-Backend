@@ -7,7 +7,7 @@ public class Venda : Entity
     public Guid ClienteId { get; private set; }
 
     public Guid FuncionarioId { get; private set; }
-    public Funcionario Funcionario { get; private set; }
+    public Funcionario Funcionario { get; private set; } = null!;
 
     public DateTime DataVenda { get; private set; }
 
@@ -33,11 +33,9 @@ public class Venda : Entity
         DataVenda = DateTime.UtcNow;
     }
 
-    // 🔥 FACTORY CORRETO
     public static Venda Criar(Guid clienteId, Guid funcionarioId, List<ItemVenda> itens)
         => new Venda(clienteId, funcionarioId);
 
-    // comportamento do agregado
     public void AdicionarItem(Guid produtoId, int quantidade, decimal precoUnitario)
     {
         if (quantidade <= 0)

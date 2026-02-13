@@ -9,11 +9,12 @@ services:
       - "14330:1433"
     volumes:
       - sql_data:/var/opt/mssql
-    healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD}" -Q "SELECT 1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
+  healthcheck:
+    test: ["CMD-SHELL", "echo 'SELECT 1' | /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 15
+    start_period: 20s
 
   redis:
     image: redis:7-alpine
@@ -26,7 +27,7 @@ services:
       dockerfile: src/GBastos.Casa_dos_Farelos.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Conn: "${DB_CONNECTION}"
+      ConnectionStrings__SqlServer: "Server=sqlserver,1433;Database=CasaDosFarelos;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True"
       Redis__Connection: "redis:6379"
     ports:
       - "8080:8080"
@@ -39,5 +40,5 @@ services:
 volumes:
   sql_data:
   
-  
-  # docker compose up -d
+  # docker compose down -v
+  # docker compose up -d --build

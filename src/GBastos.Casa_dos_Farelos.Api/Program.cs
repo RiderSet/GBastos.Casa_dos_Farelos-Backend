@@ -50,16 +50,15 @@ builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
 // ======== Database ========
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
-   //var env = sp.GetRequiredService<IHostEnvironment>();
     var env = builder.Environment;
-    var redisPassword = SecretProvider.TryGet("redis_password");
     var config = sp.GetRequiredService<IConfiguration>();
+    var interceptor = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
 
     string connectionString;
 
     if (env.IsDevelopment())
     {
-        connectionString = builder.Configuration.GetConnectionString("Conn")!;
+        connectionString = config.GetConnectionString("SqlServer")!;
     }
     else
     {
@@ -73,25 +72,12 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
             $"TrustServerCertificate=True";
     }
 
-    // Redis, JWT e RabbitMQ
-    var redisConnection = redisPassword is null
-        ? "redis:6379"
-        : $"redis:6379,password={redisPassword}";
-
-    var jwtKey = env.IsDevelopment()
-        ? builder.Configuration["Jwt:Key"]!
-        : SecretProvider.GetRequired("jwt_secret");
-
-    var rabbitUser = SecretProvider.TryGet("rabbit_user") ?? "guest";
-    var rabbitPass = SecretProvider.TryGet("rabbit_password") ?? "guest";
-
-    // registra no configuration runtime
-    builder.Configuration["ConnectionStrings:Conn"] = connectionString;
-    builder.Configuration["Redis:Connection"] = redisConnection;
-    builder.Configuration["Jwt:Key"] = jwtKey;
-    builder.Configuration["Rabbit:User"] = rabbitUser;
-    builder.Configuration["Rabbit:Password"] = rabbitPass;
-
+    options.UseSqlServer(connectionString, sql =>
+        sql.EnableRetryOnFailure(
+            maxRetryCount: 10,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorNumbersToAdd: null))
+        .AddInterceptors(interceptor);
 });
 
 // ======== Swagger ========
@@ -160,6 +146,9 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await db.Database.MigrateAsync();
     await DistributedDbInitializer.EnsureMigratedAsync(scope.ServiceProvider, CancellationToken.None);
 }
 

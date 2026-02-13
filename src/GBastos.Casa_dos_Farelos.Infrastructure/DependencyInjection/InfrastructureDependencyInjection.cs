@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Security;
+using GBastos.Casa_dos_Farelos.Domain.Abstractions;
 using GBastos.Casa_dos_Farelos.Infrastructure.Caching;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
@@ -40,6 +41,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IClientePJRepository, ClientePJRepository>();
             services.AddScoped<IVendaSaveRepository, VendaSaveRepository>();
             services.AddScoped<IVendaReadRepository, VendaReadRepository>();
+            services.AddScoped<IIntegrationEvent, IntegrationEvent>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddHostedService<OutboxProcessor>();

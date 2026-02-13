@@ -22,7 +22,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
     public DbSet<DataSeedHistory> DataSeedHistory => Set<DataSeedHistory>();
 
-    public DbSet<OutboxMessage> Outbox => Set<OutboxMessage>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
 
