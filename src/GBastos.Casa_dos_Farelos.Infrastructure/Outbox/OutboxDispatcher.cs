@@ -1,52 +1,68 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using GBastos.Casa_dos_Farelos.Shared.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
-public sealed class OutboxDispatcher : BackgroundService
+public sealed class OutboxDispatcher : IOutboxDispatcher
 {
-    private readonly IServiceProvider _provider;
+    private readonly AppDbContext _db;
+    private readonly IPublisher _publisher;
 
-    public OutboxDispatcher(IServiceProvider provider)
-        => _provider = provider;
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public OutboxDispatcher(AppDbContext db, IPublisher publisher)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        _db = db;
+        _publisher = publisher;
+    }
+
+    public async Task DispatchOutboxAsync(CancellationToken ct = default)
+    {
+        // pega somente eventos pendentes
+        var messages = await _db.OutboxMessages
+            .Where(x => !x.IsProcessed)
+            .OrderBy(x => x.OccurredOn)
+            .Take(50) // lote para não travar banco
+            .ToListAsync(ct);
+
+        if (messages.Count == 0)
+            return;
+
+        foreach (var message in messages)
         {
-            using var scope = _provider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var publisher = scope.ServiceProvider.GetRequiredService<IEventBus>();
-
-            var messages = await db.OutboxMessages
-                .Where(x => x.ProcessedOn == null)
-                .OrderBy(x => x.OccurredOn)
-                .Take(50)
-                .ToListAsync(stoppingToken);
-
-            foreach (var message in messages)
+            try
             {
-                try
-                {
-                    var type = Type.GetType(message.Type)!;
-                    var @event = JsonSerializer.Deserialize(message.Payload, type)!;
+                // Descobre o tipo do evento
+                var type = Type.GetType($"GBastos.Casa_dos_Farelos.Domain.Events.{message.Type}");
 
-                    await publisher.Publish(@event, stoppingToken);
-
-                    message.MarkAsProcessed();
-                }
-                catch (Exception ex)
+                if (type is null)
                 {
-                    message.MarkAsFailed(ex.Message);
+                    message.MarkAsFailed("Tipo do evento não encontrado");
+                    continue;
                 }
+
+                // Desserializa o evento
+                var domainEvent = JsonSerializer.Deserialize(message.Payload, type);
+
+                if (domainEvent is null)
+                {
+                    message.MarkAsFailed("Falha ao desserializar evento");
+                    continue;
+                }
+
+                // Publica via MediatR (in-process)
+                await _publisher.Publish(domainEvent, ct);
+
+                // Marca como processado
+                message.MarkAsProcessed();
             }
-
-            await db.SaveChangesAsync(stoppingToken);
-            await Task.Delay(2000, stoppingToken);
+            catch (Exception ex)
+            {
+                message.MarkAsFailed(ex.Message);
+            }
         }
+
+        await _db.SaveChangesAsync(ct);
     }
 }

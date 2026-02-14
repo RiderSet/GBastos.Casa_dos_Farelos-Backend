@@ -1,6 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,20 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
 public class AppDbContext : DbContext, IAppDbContext
 {
+    private readonly PublishDomainEventsInterceptor _domainEventsInterceptor;
+    private readonly OutboxSaveChangesInterceptor _outboxInterceptor;
+
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
+        PublishDomainEventsInterceptor domainEventsInterceptor,
+        OutboxSaveChangesInterceptor outboxInterceptor)
+        : base(options)
+    {
+        _domainEventsInterceptor = domainEventsInterceptor;
+        _outboxInterceptor = outboxInterceptor;
+    }
+
+    // ================= DbSets =================
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Produto> Produtos => Set<Produto>();
     public DbSet<Pessoa> Pessoas => Set<Pessoa>();
@@ -22,31 +37,35 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
     public DbSet<Carrinho> Carrinhos => Set<Carrinho>();
     public DbSet<DataSeedHistory> DataSeedHistory => Set<DataSeedHistory>();
-
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
-    DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
-
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
-
+    // ================= SaveChangesAsync =================
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
-        return await base.SaveChangesAsync(ct);
+        // 1️⃣ Dispara eventos de domínio antes do commit
+        await _domainEventsInterceptor.DispatchDomainEventsAsync(this);
+
+        // 2️⃣ Salva no banco
+        var result = await base.SaveChangesAsync(ct);
+
+        // 3️⃣ Dispara mensagens da Outbox após o commit
+        await _outboxInterceptor.DispatchOutboxAsync(this, ct);
+
+        return result;
     }
 
+    // ================= OnModelCreating =================
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         // ---------------- HERANÇA PESSOA ----------------
         modelBuilder.Entity<Pessoa>()
-            .ToTable("Pessoas")                 // Toda a hierarquia em uma tabela
-            .HasDiscriminator<string>("Tipo")   // Coluna discriminadora
+            .ToTable("Pessoas")
+            .HasDiscriminator<string>("Tipo")
             .HasValue<ClientePF>("PF")
             .HasValue<ClientePJ>("PJ");
 
-        // Configure propriedades específicas
         modelBuilder.Entity<ClientePF>().Property(c => c.CPF).HasMaxLength(11);
         modelBuilder.Entity<ClientePJ>().Property(c => c.CNPJ).HasMaxLength(14);
 
@@ -59,30 +78,25 @@ public class AppDbContext : DbContext, IAppDbContext
         // ---------------- COMPRA ----------------
         modelBuilder.Entity<Compra>().ToTable("Compras");
         modelBuilder.Entity<Compra>().Property(c => c.DataCompra).IsRequired();
-     //   modelBuilder.Entity<Compra>().Property(c => c.TotalCompra).HasPrecision(18, 2);
-
-        // BACKING FIELD para Itens
         modelBuilder.Entity<Compra>()
             .Metadata.FindNavigation(nameof(Compra.Itens))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-      //  modelBuilder.Entity<CriarCompraCommand>().ToTable("ItensCompra");
 
         // ---------------- VENDA ----------------
         modelBuilder.Entity<Venda>().ToTable("Vendas");
         modelBuilder.Entity<Venda>()
             .Metadata.FindNavigation(nameof(Venda.Itens))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
-
         modelBuilder.Entity<ItemVenda>().ToTable("ItensVenda");
 
-        // ---------------- RELACIONAMENTO PRODUTO-CATEGORIA ----------------
+        // ---------------- PRODUTO-CATEGORIA ----------------
         modelBuilder.Entity<Produto>()
             .HasOne(p => p.Categoria)
             .WithMany(c => c.Produtos)
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // ---------------- SEED HISTORY ----------------
         modelBuilder.Entity<DataSeedHistory>()
             .ToTable("__DataSeedHistory")
             .HasKey(x => x.Id);

@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
@@ -26,12 +27,15 @@ public sealed class OutboxMessage : BaseEntity
 
     public static OutboxMessage Create(object domainEvent, Guid id, DateTime occurredOn)
     {
-        return new OutboxMessage(
-            id,
-            occurredOn,
-            domainEvent.GetType().Name,
-            JsonSerializer.Serialize(domainEvent)
-        );
+        return new OutboxMessage
+        {
+            Id = id,
+            Type = domainEvent.GetType().Name,
+            Payload = JsonSerializer.Serialize(domainEvent),
+            OccurredOn = occurredOn,
+            ProcessedOn = null,
+            Error = null
+        };
     }
 
     public void MarkAsProcessed()

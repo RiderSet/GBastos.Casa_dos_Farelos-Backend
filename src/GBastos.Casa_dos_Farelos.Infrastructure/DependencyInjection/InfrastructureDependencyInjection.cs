@@ -46,9 +46,11 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
+            services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
             services.AddScoped<IOutbox, OutboxService>();
             services.AddHostedService<OutboxProcessor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHostedService<OutboxWorker>();
 
             services.AddSingleton<IEventBus, InMemoryEventBus>();
             services.AddHostedService<OutboxProcessor>();
