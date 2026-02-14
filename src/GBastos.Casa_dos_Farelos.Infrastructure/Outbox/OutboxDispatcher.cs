@@ -37,11 +37,11 @@ public sealed class OutboxDispatcher : BackgroundService
 
                     await publisher.Publish(@event, stoppingToken);
 
-                    message.ProcessedOn = DateTime.UtcNow;
+                    message.MarkAsProcessed();
                 }
                 catch (Exception ex)
                 {
-                    message.Error = ex.Message;
+                    message.MarkAsFailed(ex.Message);
                 }
             }
 

@@ -5,6 +5,7 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Caching;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Mappings;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
 using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
@@ -44,6 +45,8 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IIntegrationEvent, IntegrationEvent>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<ICompraRepository, CompraRepository>();
+            services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
+            services.AddScoped<IOutbox, OutboxService>();
             services.AddHostedService<OutboxProcessor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

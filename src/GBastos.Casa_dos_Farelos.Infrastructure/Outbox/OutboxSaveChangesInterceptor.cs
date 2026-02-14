@@ -1,47 +1,44 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
 public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
 {
-    private readonly List<Entity> _entitiesWithEvents = new();
-
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
-        var db = eventData.Context;
+        var context = eventData.Context;
 
-        if (db is null) return base.SavingChangesAsync(eventData, result, ct);
+        if (context is null)
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-        var entities = db.ChangeTracker
-            .Entries<Entity>()
-            .Where(e => e.Entity.IntegrationEvent.Any())
-            .Select(e => e.Entity)
+        var domainEvents = context.ChangeTracker
+            .Entries<AggregateRoot>()
+            .SelectMany(e => e.Entity.DomainEvents)
             .ToList();
 
-        _entitiesWithEvents.AddRange(entities);
+        if (domainEvents.Count == 0)
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-        var outboxMessages = new List<OutboxMessage>();
-
-        foreach (var entity in entities)
+        foreach (var domainEvent in domainEvents)
         {
-            foreach (var domainEvent in entity.IntegrationEvent)
-            {
-                outboxMessages.Add(
-                    OutboxMessage.Create(
-                        domainEvent,
-                        domainEvent.Id,
-                        domainEvent.OccurredOn
-                    )
-                );
-            }
+            var outboxMessage = OutboxMessage.Create(
+                domainEvent,
+                Guid.NewGuid(),
+                DateTime.UtcNow);
+
+            context.Set<OutboxMessage>().Add(outboxMessage);
         }
 
-        db.Set<OutboxMessage>().AddRange(outboxMessages);
+        // limpa eventos após salvar
+        foreach (var entry in context.ChangeTracker.Entries<AggregateRoot>())
+            entry.Entity.ClearDomainEvents();
 
-        return base.SavingChangesAsync(eventData, result, ct);
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 }

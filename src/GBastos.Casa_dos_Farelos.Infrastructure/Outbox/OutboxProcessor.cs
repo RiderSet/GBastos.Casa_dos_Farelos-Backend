@@ -47,7 +47,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
 
-            var messages = await db.Outbox
+            var messages = await db.OutboxMessages
                 .Where(x => x.ProcessedOn == null)
                 .OrderBy(x => x.OccurredOn)
                 .Take(20)

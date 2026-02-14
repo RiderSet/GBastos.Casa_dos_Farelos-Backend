@@ -3,10 +3,11 @@ using GBastos.Casa_dos_Farelos.Domain.Events.Compras;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Compra : Entity
+public class Compra : AggregateRoot
 {
     public Guid FornecedorId { get; private set; }
     public DateTime DataCompra { get; private set; }
+    public bool Finalizada { get; private set; }
 
     public Fornecedor Fornecedor { get; private set; } = null!;
 
@@ -15,24 +16,24 @@ public class Compra : Entity
 
     public decimal TotalCompra => _itens.Sum(i => i.SubTotal);
 
-    protected Compra() { }
-
-    public static Compra Criar(Guid fornecedorId)
-    => new Compra(fornecedorId);
+    protected Compra() { } // EF
 
     private Compra(Guid fornecedorId)
     {
-        if (fornecedorId == Guid.Empty)
-            throw new DomainException("Fornecedor inválido.");
-
+        Id = Guid.NewGuid();
         FornecedorId = fornecedorId;
         DataCompra = DateTime.UtcNow;
-
-        AddDomainEvent(new CompraCriadaDomainEvent(Id, fornecedorId));
+        Finalizada = false;
     }
 
-    public void AdicionarItem(Guid produtoId, int quantidade, decimal custoUnitario)
+    public static Compra Criar(Guid fornecedorId)
+        => new Compra(fornecedorId);
+
+    public void AdicionarItem(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
     {
+        if (Finalizada)
+            throw new DomainException("Compra já finalizada.");
+
         if (produtoId == Guid.Empty)
             throw new DomainException("Produto inválido.");
 
@@ -42,7 +43,6 @@ public class Compra : Entity
         if (custoUnitario <= 0)
             throw new DomainException("Custo unitário deve ser maior que zero.");
 
-        // evita itens duplicados no mesmo agregado
         var itemExistente = _itens.FirstOrDefault(i => i.ProdutoId == produtoId);
 
         if (itemExistente is not null)
@@ -51,12 +51,33 @@ public class Compra : Entity
             return;
         }
 
-        var item = new ItemCompra(produtoId, quantidade, custoUnitario);
-
-        // associa ao agregado raiz
+        var item = new ItemCompra(produtoId, nomeProduto, quantidade, custoUnitario);
         item.DefinirCompra(Id);
 
         _itens.Add(item);
     }
 
+    public void Finalizar()
+    {
+        if (Finalizada)
+            throw new DomainException("Compra já finalizada.");
+
+        if (!_itens.Any())
+            throw new DomainException("Não é possível finalizar uma compra sem itens.");
+
+        Finalizada = true;
+
+        AddDomainEvent(new CompraCriadaDomainEvent(
+            Id,
+            FornecedorId,
+            TotalCompra,
+            _itens.Select(i => new CompraItemSnapshot(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario,
+                i.SubTotal
+            )).ToList()
+        ));
+    }
 }

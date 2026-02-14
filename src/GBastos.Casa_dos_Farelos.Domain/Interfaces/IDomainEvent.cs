@@ -1,8 +1,7 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Interfaces
+﻿namespace GBastos.Casa_dos_Farelos.Domain.Interfaces;
+
+public interface IDomainEvent
 {
-    public interface IDomainEvent
-    {
-        Guid Id { get; }
-        DateTime OccurredOn { get; }
-    }
+    Guid Id { get; }
+    DateTime OccurredOn { get; }
 }

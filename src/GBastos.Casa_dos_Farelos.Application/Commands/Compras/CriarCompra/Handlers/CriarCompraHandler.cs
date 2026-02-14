@@ -23,7 +23,6 @@ public sealed class CriarCompraHandler : IRequestHandler<CriarCompraCommand, Gui
         if (!fornecedorExiste)
             throw new DomainException("Fornecedor não encontrado.");
 
-        // A entidade nasce aqui
         var compra = Compra.Criar(request.FornecedorId);
 
         foreach (var item in request.Itens)
@@ -36,15 +35,18 @@ public sealed class CriarCompraHandler : IRequestHandler<CriarCompraCommand, Gui
 
             compra.AdicionarItem(
                 item.ProdutoId,
+                item.NomeProduto,
                 item.Quantidade,
                 item.CustoUnitario
             );
         }
 
+        compra.Finalizar();
+
         _db.Compras.Add(compra);
+
         await _db.SaveChangesAsync(cancellationToken);
 
-        // 🔥 AGORA SIM existe Id
         return compra.Id;
     }
 }

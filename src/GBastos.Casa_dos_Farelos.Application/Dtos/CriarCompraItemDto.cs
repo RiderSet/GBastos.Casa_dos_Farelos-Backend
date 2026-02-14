@@ -2,6 +2,7 @@
 
 public sealed record CriarCompraItemDto(
     Guid ProdutoId,
+    string NomeProduto,
     int Quantidade,
     decimal CustoUnitario
 );

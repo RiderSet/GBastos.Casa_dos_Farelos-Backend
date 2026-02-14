@@ -6,21 +6,18 @@ public sealed class CompraCriadaDomainEvent : DomainEvent
 {
     public Guid CompraId { get; }
     public Guid FornecedorId { get; }
-    public decimal ValorTotal { get; }
-    public List<CompraItemDto> Itens { get; } = new List<CompraItemDto>();
+    public decimal Total { get; }
+    public IReadOnlyCollection<CompraItemSnapshot> Itens { get; }
 
-    public CompraCriadaDomainEvent(Guid compraId, Guid fornecedorId, decimal valorTotal, List<CompraItemDto> itens)
+    public CompraCriadaDomainEvent(
+        Guid compraId,
+        Guid fornecedorId,
+        decimal total,
+        IReadOnlyCollection<CompraItemSnapshot> itens)
     {
         CompraId = compraId;
         FornecedorId = fornecedorId;
-        ValorTotal = valorTotal;
-        Itens = itens ?? new List<CompraItemDto>();
+        Total = total;
+        Itens = itens;
     }
 }
-
-public sealed record CompraItemDto(
-    Guid ProdutoId,
-    string NomeProduto,
-    int Quantidade,
-    decimal PrecoUnitario,
-    decimal SubTotal);

@@ -10,7 +10,7 @@ public class ItemCompraMapping : IEntityTypeConfiguration<ItemCompra>
     {
         builder.ToTable("ItensCompra");
 
-        builder.HasKey(i => i.Id);
+        //builder.HasKey(i => i.Id);
 
         builder.Property(i => i.ProdutoId)
                .IsRequired();

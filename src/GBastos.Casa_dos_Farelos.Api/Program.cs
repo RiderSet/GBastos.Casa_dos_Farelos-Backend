@@ -9,6 +9,7 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using GBastos.Casa_dos_Farelos.Infrastructure.Security;
 using MediatR;
@@ -19,7 +20,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,16 +43,19 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
 });
+
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
+//builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
+builder.Services.AddScoped<PublishDomainEventsInterceptor>();
 
 // ======== Database ========
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
     var env = builder.Environment;
     var config = sp.GetRequiredService<IConfiguration>();
-    var interceptor = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
+ // var interceptor = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
+    var interceptor = sp.GetRequiredService<PublishDomainEventsInterceptor>();
 
     string connectionString;
 

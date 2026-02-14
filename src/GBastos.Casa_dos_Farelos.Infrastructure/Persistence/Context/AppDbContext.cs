@@ -20,6 +20,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ItemPedido> ItensPedido => Set<ItemPedido>();
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
+    public DbSet<Carrinho> Carrinhos => Set<Carrinho>();
     public DbSet<DataSeedHistory> DataSeedHistory => Set<DataSeedHistory>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();

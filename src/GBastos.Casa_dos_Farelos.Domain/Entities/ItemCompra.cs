@@ -1,39 +1,32 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Entities;
 
-namespace GBastos.Casa_dos_Farelos.Domain.Entities;
-
-public class ItemCompra : Entity
+public class ItemCompra
 {
-    public Guid CompraId { get; private set; }
     public Guid ProdutoId { get; private set; }
+    public Produto Produto { get; private set; } = null!;
 
+    public string NomeProduto { get; private set; } = string.Empty;
     public int Quantidade { get; private set; }
     public decimal CustoUnitario { get; private set; }
 
-    // calculado SEMPRE
+    // RELACIONAMENTO COM A COMPRA
+    public Guid CompraId { get; private set; }
+    public Compra Compra { get; private set; } = null!;
+
     public decimal SubTotal => Quantidade * CustoUnitario;
 
-    public Compra Compra { get; private set; } = null!;
-    public Produto Produto { get; private set; } = null!;
+    protected ItemCompra() { } // EF
 
-    protected ItemCompra() { }
-
-    internal ItemCompra(Guid produtoId, int quantidade, decimal custoUnitario)
+    public ItemCompra(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
     {
-        if (produtoId == Guid.Empty)
-            throw new DomainException("Produto inválido.");
-
-        if (quantidade <= 0)
-            throw new DomainException("Quantidade deve ser maior que zero.");
-
-        if (custoUnitario <= 0)
-            throw new DomainException("Custo unitário inválido.");
-
         ProdutoId = produtoId;
+        NomeProduto = nomeProduto;
         Quantidade = quantidade;
         CustoUnitario = custoUnitario;
     }
 
+    // 🔹 Somente o agregado raiz deve chamar
     internal void DefinirCompra(Guid compraId)
     {
         if (compraId == Guid.Empty)
@@ -42,19 +35,9 @@ public class ItemCompra : Entity
         CompraId = compraId;
     }
 
-    internal void SomarQuantidade(int quantidade, decimal custoUnitario)
+    public void SomarQuantidade(int quantidade, decimal novoCusto)
     {
-        if (quantidade <= 0)
-            throw new DomainException("Quantidade deve ser maior que zero.");
-
-        if (custoUnitario <= 0)
-            throw new DomainException("Custo unitário deve ser maior que zero.");
-
-        // regra: mesma compra + mesmo produto = acumula quantidade
         Quantidade += quantidade;
-
-        // regra de negócio comum em compras:
-        // o último custo pago vira o custo atual do lote
-        CustoUnitario = custoUnitario;
+        CustoUnitario = novoCusto;
     }
 }
