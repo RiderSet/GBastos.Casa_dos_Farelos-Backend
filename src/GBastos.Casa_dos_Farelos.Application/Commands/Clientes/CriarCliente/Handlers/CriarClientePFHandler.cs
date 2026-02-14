@@ -22,12 +22,11 @@ public sealed class CriarClientePFHandler : IRequestHandler<CriarClientePFComman
             request.Nome,
             request.Telefone,
             request.Email,
-            request.Cpf
+            request.Cpf,
+        request.dtNascimento
         );
 
         await _repo.AddAsync(cliente, ct);
-
-        // 🔥 Aqui acontece o commit REAL
         await _uow.SaveChangesAsync(ct);
 
         return cliente.Id;

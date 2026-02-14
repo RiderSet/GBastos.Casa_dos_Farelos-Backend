@@ -6,5 +6,6 @@ public record CriarClientePFCommand(
     string Nome,
     string Telefone,
     string Email,
-    string Cpf
+    string Cpf,
+        DateTime dtNascimento
 ) : IRequest<Guid>;
