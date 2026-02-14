@@ -29,7 +29,7 @@ public class Funcionario : Pessoa
         string cpf,
         Cargo cargo)
     {
-        base.Atualizar(nome, telefone, email, DtCadastro);
+        base.Atualizar(nome, telefone, email);
         SetCpf(cpf);
         SetCargo(cargo);
     }

@@ -6,7 +6,20 @@ public sealed class ClientePJ : Pessoa
     public string NomeFantasia { get; private set; } = string.Empty;
     public string Contato { get; private set; } = string.Empty;
 
+    // EF Core
     private ClientePJ() { }
+
+    private ClientePJ(
+        string nome,
+        string telefone,
+        string email,
+        string nomeFantasia,
+        string cnpj,
+        string contato)
+        : base(nome, telefone, email)
+    {
+        DefinirDadosEmpresa(nomeFantasia, cnpj, contato);
+    }
 
     public static ClientePJ CriarClientePJ(
         string nomeFantasia,
@@ -15,33 +28,33 @@ public sealed class ClientePJ : Pessoa
         string cnpj,
         string contato)
     {
+        return new ClientePJ(nomeFantasia, telefone, email, nomeFantasia, cnpj, contato);
+    }
+
+    public void AtualizarClientePJ(
+        string nome,
+        string telefone,
+        string email,
+        string nomeFantasia,
+        string cnpj,
+        string contato)
+    {
+        Atualizar(nome, telefone, email); // método da Pessoa
+        DefinirDadosEmpresa(nomeFantasia, cnpj, contato);
+    }
+
+    private void DefinirDadosEmpresa(string nomeFantasia, string cnpj, string contato)
+    {
         if (string.IsNullOrWhiteSpace(nomeFantasia))
             throw new ArgumentException("Nome fantasia é obrigatório", nameof(nomeFantasia));
+
         if (string.IsNullOrWhiteSpace(cnpj))
             throw new ArgumentException("CNPJ é obrigatório", nameof(cnpj));
 
-        var cliente = new ClientePJ
-        {
-            Id = Guid.NewGuid(),
-            NomeFantasia = nomeFantasia,
-            Email = email,
-            CNPJ = cnpj,
-            Contato = contato
-        };
+        if (cnpj.Length != 14)
+            throw new ArgumentException("CNPJ inválido", nameof(cnpj));
 
-        return cliente;
-    }
-
-    public void AtualizarClentePJ(
-        string nomeFantasia,
-        string telefone,
-        string email,
-        string cnpj,
-        string contato,
-        DateTime dtCadastro)
-    {
         NomeFantasia = nomeFantasia;
-        Email = email;
         CNPJ = cnpj;
         Contato = contato;
     }

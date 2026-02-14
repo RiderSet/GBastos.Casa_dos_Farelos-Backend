@@ -3,6 +3,7 @@ using GBastos.Casa_dos_Farelos.Application.Commands.Produtos.CriarProduto;
 using GBastos.Casa_dos_Farelos.Application.Commands.Produtos.CriarProduto.Handlers;
 using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using Moq;
 
 namespace GBastos.Casa_dos_Farelos.Tests.Application.Unit.Produtos;

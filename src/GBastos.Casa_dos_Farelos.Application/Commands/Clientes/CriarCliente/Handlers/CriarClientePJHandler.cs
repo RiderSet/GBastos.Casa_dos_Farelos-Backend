@@ -15,10 +15,20 @@ public sealed class CriarClientePJHandler : IRequestHandler<CriarClientePJComman
 
     public async Task<Guid> Handle(CriarClientePJCommand request, CancellationToken ct)
     {
-        var dto = request.ClientePJ;
-        var cliente = new ClientePJ(dto.Nome, dto.Telefone, dto.Email, dto.CNPJ, dto.Contato);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(request.ClientePJ);
 
-        await _repo.AdicionarClientePJAsync(cliente, ct);
+        var dto = request.ClientePJ;
+
+        var cliente = ClientePJ.CriarClientePJ(
+            dto.NomeFantasia,
+            dto.Telefone,
+            dto.Email,
+            dto.CNPJ,
+            dto.Contato
+        );
+
+        await _repo.AdicionarClientePJAsync(cliente, ct).ConfigureAwait(false);
 
         return cliente.Id;
     }

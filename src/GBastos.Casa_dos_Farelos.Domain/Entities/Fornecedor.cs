@@ -20,7 +20,7 @@ public class Fornecedor : Pessoa
 
     public void Atualizar(string nome, string telefone, string email, string cnpj, DateTime DtCadastro)
     {
-        base.Atualizar(nome, telefone, email, DtCadastro);
+        base.Atualizar(nome, telefone, email);
         SetCnpj(cnpj);
 
         AddDomainEvent(new FornecedorAtualizadoDomainEvent(

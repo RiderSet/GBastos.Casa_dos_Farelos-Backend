@@ -5,5 +5,5 @@ public record ClientePFCreateDto(
     string Telefone,
     string Email,
     string CPF,
-    DateTime DtCadastro
+    DateTime DtNascimento
 );

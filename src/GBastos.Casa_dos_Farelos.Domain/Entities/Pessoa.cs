@@ -51,11 +51,10 @@ public abstract class Pessoa : BaseEntity
         DtCadastro = dtCadastro;
     }
 
-    public virtual void Atualizar(string nome, string telefone, string email, DateTime dtCadastro)
+    public virtual void Atualizar(string nomefantasia, string telefone, string email)
     {
-        SetNome(nome);
+        SetNome(nomefantasia);
         SetTelefone(telefone);
         SetEmail(email);
-        SetDtCadastro(dtCadastro);
     }
 }
