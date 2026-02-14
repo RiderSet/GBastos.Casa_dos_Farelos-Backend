@@ -7,5 +7,5 @@ public sealed class CompraDetalhadaDto
     public Guid FornecedorId { get; init; }
     public decimal Total { get; init; }
 
-    public List<ItemCompraDto> Itens { get; init; } = new();
+    public List<CompraItemDto> Itens { get; init; } = new();
 }

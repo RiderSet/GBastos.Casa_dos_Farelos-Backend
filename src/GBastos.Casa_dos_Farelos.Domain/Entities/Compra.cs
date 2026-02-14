@@ -67,6 +67,7 @@ public class Compra : AggregateRoot
 
         Finalizada = true;
 
+        // Dispara o DomainEvent com snapshots e total
         AddDomainEvent(new CompraCriadaDomainEvent(
             Id,
             FornecedorId,

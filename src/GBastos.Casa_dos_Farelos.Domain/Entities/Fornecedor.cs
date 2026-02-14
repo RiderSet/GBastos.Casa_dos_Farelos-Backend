@@ -1,4 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Events.Fornecedores;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
@@ -21,6 +22,14 @@ public class Fornecedor : Pessoa
     {
         base.Atualizar(nome, telefone, email, DtCadastro);
         SetCnpj(cnpj);
+
+        AddDomainEvent(new FornecedorAtualizadoDomainEvent(
+            Id,
+            Nome,
+            Email,
+            Telefone,
+            CNPJ
+        ));
     }
 
     private void SetCnpj(string cnpj)

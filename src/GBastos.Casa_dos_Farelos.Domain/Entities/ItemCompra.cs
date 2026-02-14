@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-using GBastos.Casa_dos_Farelos.Domain.Entities;
+
+namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public class ItemCompra
 {
@@ -10,13 +11,12 @@ public class ItemCompra
     public int Quantidade { get; private set; }
     public decimal CustoUnitario { get; private set; }
 
-    // RELACIONAMENTO COM A COMPRA
     public Guid CompraId { get; private set; }
     public Compra Compra { get; private set; } = null!;
 
     public decimal SubTotal => Quantidade * CustoUnitario;
 
-    protected ItemCompra() { } // EF
+    protected ItemCompra() { }
 
     public ItemCompra(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
     {
@@ -26,7 +26,6 @@ public class ItemCompra
         CustoUnitario = custoUnitario;
     }
 
-    // 🔹 Somente o agregado raiz deve chamar
     internal void DefinirCompra(Guid compraId)
     {
         if (compraId == Guid.Empty)

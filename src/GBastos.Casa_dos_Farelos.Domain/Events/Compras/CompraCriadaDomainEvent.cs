@@ -8,16 +8,17 @@ public sealed class CompraCriadaDomainEvent : DomainEvent
     public Guid FornecedorId { get; }
     public decimal Total { get; }
     public IReadOnlyCollection<CompraItemSnapshot> Itens { get; }
+    public decimal TotalCompra { get; set; }
 
     public CompraCriadaDomainEvent(
         Guid compraId,
         Guid fornecedorId,
-        decimal total,
+        decimal TotalCompra,
         IReadOnlyCollection<CompraItemSnapshot> itens)
     {
         CompraId = compraId;
         FornecedorId = fornecedorId;
-        Total = total;
+        Total = TotalCompra;
         Itens = itens;
     }
 }

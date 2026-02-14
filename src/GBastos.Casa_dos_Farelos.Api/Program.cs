@@ -61,7 +61,8 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 
     if (env.IsDevelopment())
     {
-        connectionString = config.GetConnectionString("SqlServer")!;
+     // connectionString = config.GetConnectionString("SqlServer")!;
+        connectionString = config.GetConnectionString("Conn")!;
     }
     else
     {
@@ -198,7 +199,6 @@ using (var scope = app.Services.CreateScope())
             await Task.Delay(5000);
         }
     }
-
     await UserSeed.SeedAsync(db);
 }
 

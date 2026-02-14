@@ -1,6 +1,6 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Events.Compras;
+﻿namespace GBastos.Casa_dos_Farelos.Application.Dtos;
 
-public record CompraItemSnapshot(
+public record CompraItemDto(
     Guid ProdutoId,
     string NomeProduto,
     int Quantidade,

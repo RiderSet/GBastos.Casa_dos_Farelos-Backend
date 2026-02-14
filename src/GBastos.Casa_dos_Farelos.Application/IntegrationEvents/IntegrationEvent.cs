@@ -1,6 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 
-namespace GBastos.Casa_dos_Farelos.Application.Common;
+namespace GBastos.Casa_dos_Farelos.Application.IntegrationEvents;
 
 public abstract record IntegrationEvent : IIntegrationEvent
 {

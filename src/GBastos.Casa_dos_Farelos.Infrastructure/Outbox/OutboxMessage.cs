@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
-public sealed class OutboxMessage : Entity
+public sealed class OutboxMessage : BaseEntity
 {
     public DateTime OccurredOn { get; private set; }
     public string Type { get; private set; } = null!;

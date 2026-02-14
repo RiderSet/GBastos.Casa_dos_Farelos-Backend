@@ -2,7 +2,7 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Pedido : Entity
+public class Pedido : BaseEntity
 {
     private readonly List<ItemPedido> _itens = new();
 

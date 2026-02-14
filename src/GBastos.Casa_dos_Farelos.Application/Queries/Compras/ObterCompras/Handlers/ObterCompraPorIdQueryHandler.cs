@@ -2,6 +2,7 @@
 using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Queries.Compras.ObterCompras;
 using MediatR;
+using System.Linq;
 
 public sealed class ObterCompraPorIdQueryHandler
     : IRequestHandler<ObterCompraPorIdQuery, CompraDto?>
@@ -18,22 +19,21 @@ public sealed class ObterCompraPorIdQueryHandler
         var compra = await _repo.ObterPorIdAsync(request.Id, ct);
         if (compra is null) return null;
 
-        var itensDto = compra.Itens.Select(i => new ItemCompraDto
-        {
-            ProdutoId = i.ProdutoId,
-            DescricaoProduto = "", // opcional: você pode buscar a descrição do Produto
-            Quantidade = i.Quantidade,
-            PrecoUnitario = i.CustoUnitario,
-            SubTotal = i.SubTotal
-        }).ToList();
+        var itensDto = compra.Itens
+            .Select(i => new CompraItemDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario,
+                i.SubTotal
+            ))
+            .ToList();
 
-        return new CompraDto
-        {
-            Id = compra.Id,
-            FornecedorId = compra.FornecedorId,
-            DataCompra = compra.DataCompra,
-            TotalCompra = compra.TotalCompra,
-            Itens = itensDto
-        };
+        return new CompraDto(
+            compra.Id,
+            compra.FornecedorId,
+            compra.TotalCompra,
+            itensDto
+        );
     }
 }

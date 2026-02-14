@@ -2,7 +2,7 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public abstract class Pessoa : Entity
+public abstract class Pessoa : BaseEntity
 {
     public string Nome { get; protected set; } = null!;
     public string Email { get; protected set; } = null!;

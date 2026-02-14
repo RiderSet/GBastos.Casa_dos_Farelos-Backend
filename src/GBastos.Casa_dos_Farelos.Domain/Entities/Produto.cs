@@ -2,7 +2,7 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Produto : Entity
+public class Produto : BaseEntity
 {
     public string Nome { get; private set; } = string.Empty;
     public string DescricaoProduto { get; private set; } = string.Empty;

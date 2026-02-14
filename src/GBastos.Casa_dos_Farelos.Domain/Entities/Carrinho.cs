@@ -2,7 +2,7 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Carrinho : Entity
+public class Carrinho : BaseEntity
 {
     public Guid ClienteId { get; private set; }
     public DateTime CriadoEm { get; private set; }

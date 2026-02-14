@@ -46,27 +46,24 @@ public class CompraRepository : ICompraRepository
         var compra = await _db.Compras
             .AsNoTracking()
             .Where(c => c.Id == id)
-            .Select(c => new CompraDto
-            {
-                Id = c.Id,
-                FornecedorId = c.FornecedorId,
-                DataCompra = c.DataCompra,
-                TotalCompra = c.TotalCompra,
-                Itens = _db.ItensCompra
+            .Select(c => new CompraDto(
+                c.Id,
+                c.FornecedorId,
+                c.TotalCompra,
+                _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
                     .Join(_db.Produtos,
                         item => item.ProdutoId,
                         produto => produto.Id,
-                        (item, produto) => new ItemCompraDto
-                        {
-                            ProdutoId = item.ProdutoId,
-                            DescricaoProduto = produto.Nome,
-                            Quantidade = item.Quantidade,
-                            PrecoUnitario = item.CustoUnitario,
-                            SubTotal = item.SubTotal
-                        })
+                        (item, produto) => new CompraItemDto(
+                            item.ProdutoId,
+                            produto.Nome,
+                            item.Quantidade,
+                            item.CustoUnitario,
+                            item.SubTotal
+                        ))
                     .ToList()
-            })
+            ))
             .FirstOrDefaultAsync(ct);
 
         return compra;

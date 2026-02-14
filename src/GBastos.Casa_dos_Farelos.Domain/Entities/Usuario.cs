@@ -1,9 +1,9 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-using System.Data;
+using GBastos.Casa_dos_Farelos.Domain.Events.Usuarios;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Usuario : Entity
+public class Usuario : BaseEntity
 {
     public string Login { get; private set; } = string.Empty;
     public string SenhaHash { get; private set; } = string.Empty;

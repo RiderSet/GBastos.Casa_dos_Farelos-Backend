@@ -27,19 +27,17 @@ public sealed class ObterCompraPorIdHandler
         if (compra is null)
             return null;
 
-        return new CompraDto
-        {
-            Id = compra.Id,
-            DataCompra = compra.DataCompra,
-            FornecedorId = compra.FornecedorId,
-            TotalCompra = compra.TotalCompra,
-            Itens = compra.Itens.Select(i => new ItemCompraDto
-            {
-                ProdutoId = i.ProdutoId,
-                Quantidade = i.Quantidade,
-                PrecoUnitario = i.CustoUnitario,
-                SubTotal = i.SubTotal
-            }).ToList()
-        };
+        return new CompraDto(
+            compra.Id,
+            compra.FornecedorId,
+            compra.TotalCompra,
+            compra.Itens.Select(i => new CompraItemDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario,
+                i.SubTotal
+            )).ToList()
+        );
     }
 }

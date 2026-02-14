@@ -2,7 +2,7 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class ItemVenda : Entity
+public class ItemVenda : BaseEntity
 {
     public Guid VendaId { get; private set; }
     public Guid ProdutoId { get; private set; }

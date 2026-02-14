@@ -1,5 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Common;
-using GBastos.Casa_dos_Farelos.Domain.Events.Compras;
+using GBastos.Casa_dos_Farelos.Application.Dtos;
 
 namespace GBastos.Casa_dos_Farelos.Application.IntegrationEvents;
 

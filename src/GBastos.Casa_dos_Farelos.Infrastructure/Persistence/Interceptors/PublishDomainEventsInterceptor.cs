@@ -22,7 +22,7 @@ public sealed class PublishDomainEventsInterceptor : SaveChangesInterceptor
         if (context == null) return result;
 
         var entities = context.ChangeTracker
-            .Entries<Entity>()
+            .Entries<BaseEntity>()
             .Where(e => e.Entity.DomainEvents.Any())
             .Select(e => e.Entity)
             .ToList();
