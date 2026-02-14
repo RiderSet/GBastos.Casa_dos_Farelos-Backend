@@ -1,6 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-
-namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePJ : Pessoa
 {
