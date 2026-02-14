@@ -28,7 +28,12 @@ public class AppDbContext : DbContext, IAppDbContext
     DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) {}
+        : base(options) { }
+
+    public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+    {
+        return await base.SaveChangesAsync(ct);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

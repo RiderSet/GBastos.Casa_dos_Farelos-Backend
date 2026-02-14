@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
@@ -13,6 +13,11 @@ public sealed class UnitOfWork : IUnitOfWork
     }
 
     public async Task CommitAsync(CancellationToken ct = default)
+    {
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken ct = default)
     {
         await _db.SaveChangesAsync(ct);
     }

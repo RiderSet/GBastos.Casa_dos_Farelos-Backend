@@ -14,8 +14,6 @@ public sealed class ClientePFRepository : IClientePFRepository
         _db = db;
     }
 
-    // ---------------- COMMAND SIDE ----------------
-
     public async Task AddAsync(ClientePF cliente, CancellationToken ct)
     {
         if (cliente == null)
@@ -41,8 +39,6 @@ public sealed class ClientePFRepository : IClientePFRepository
         _db.ClientesPF.Remove(cliente);
         return Task.CompletedTask;
     }
-
-    // ---------------- QUERY SIDE ----------------
 
     public async Task<ClientePF?> ObterPorIdAsync(Guid id, CancellationToken ct)
     {

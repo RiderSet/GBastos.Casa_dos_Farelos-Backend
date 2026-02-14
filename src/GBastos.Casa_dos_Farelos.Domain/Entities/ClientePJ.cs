@@ -4,48 +4,47 @@ namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePJ : Pessoa
 {
-    public string CNPJ { get; private set; } = null!;
-    public string Contato { get; private set; } = null!;
+    public string CNPJ { get; private set; } = string.Empty;
+    public string NomeFantasia { get; private set; } = string.Empty;
+    public string Contato { get; private set; } = string.Empty;
 
-    private ClientePJ() { } // EF
+    private ClientePJ() { }
 
-    public ClientePJ(string nome, string telefone, string email, string cnpj, string contato)
-        : base(nome, telefone, email)
+    public static ClientePJ CriarClientePJ(
+        string nomeFantasia,
+        string telefone,
+        string email,
+        string cnpj,
+        string contato)
     {
-        SetCnpj(cnpj);
-        SetContato(contato);
-    }
-
-    public void Atualizar(string nome, string telefone, string email, string contato, DateTime dtCadastro)
-    {
-        base.Atualizar(nome, telefone, email, dtCadastro);
-        SetContato(contato);
-    }
-
-    private void SetCnpj(string cnpj)
-    {
-        if (CNPJ != null)
-            throw new DomainException("CNPJ não pode ser alterado");
-
+        if (string.IsNullOrWhiteSpace(nomeFantasia))
+            throw new ArgumentException("Nome fantasia é obrigatório", nameof(nomeFantasia));
         if (string.IsNullOrWhiteSpace(cnpj))
-            throw new DomainException("CNPJ obrigatório");
+            throw new ArgumentException("CNPJ é obrigatório", nameof(cnpj));
 
-        cnpj = SomenteNumeros(cnpj);
+        var cliente = new ClientePJ
+        {
+            Id = Guid.NewGuid(),
+            NomeFantasia = nomeFantasia,
+            Email = email,
+            CNPJ = cnpj,
+            Contato = contato
+        };
 
-        if (cnpj.Length != 14)
-            throw new DomainException("CNPJ inválido");
-
-        CNPJ = cnpj;
+        return cliente;
     }
 
-    private void SetContato(string contato)
+    public void AtualizarClentePJ(
+        string nomeFantasia,
+        string telefone,
+        string email,
+        string cnpj,
+        string contato,
+        DateTime dtCadastro)
     {
-        if (string.IsNullOrWhiteSpace(contato))
-            throw new DomainException("Contato obrigatório");
-
-        Contato = contato.Trim();
+        NomeFantasia = nomeFantasia;
+        Email = email;
+        CNPJ = cnpj;
+        Contato = contato;
     }
-
-    private static string SomenteNumeros(string valor)
-        => new string(valor.Where(char.IsDigit).ToArray());
 }

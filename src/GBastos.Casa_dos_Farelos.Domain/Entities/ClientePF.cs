@@ -4,36 +4,47 @@ namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePF : Pessoa
 {
-    public string CPF { get; private set; } = null!;
-    public DateTime? DtNascimento { get; private set; }
+    public string CPF { get; private set; }
+    public string Telefone { get; private set; }
+    public DateTime DtCadastro { get; private set; }
 
     private ClientePF() { }
 
-    public ClientePF(string nome, string telefone, string email, string cpf, DateTime dtCadastro)
-        : base(nome, telefone, email)
+    public static ClientePF CriarClientePF(
+        string nome,
+        string telefone,
+        string email,
+        string cpf)
     {
-        SetCpf(cpf);
-    }
-
-    public void Atualizar(string nome, string telefone, string email, string cpf, DateTime dtCadastro)
-    {
-        base.Atualizar(nome, telefone, email, dtCadastro);
-        SetCpf(cpf);
-    }
-
-    private void SetCpf(string cpf)
-    {
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new ArgumentException("Nome é obrigatório", nameof(nome));
         if (string.IsNullOrWhiteSpace(cpf))
-            throw new DomainException("CPF é obrigatório");
+            throw new ArgumentException("CPF é obrigatório", nameof(cpf));
 
-        cpf = SomenteNumeros(cpf);
+        var cliente = new ClientePF
+        {
+            Id = Guid.NewGuid(),
+            Nome = nome,
+            Telefone = telefone,
+            Email = email,
+            CPF = cpf,
+            DtCadastro = DateTime.UtcNow
+        };
 
-        if (cpf.Length != 11)
-            throw new DomainException("CPF inválido");
-
-        CPF = cpf;
+        return cliente;
     }
 
-    private static string SomenteNumeros(string valor)
-        => new string(valor.Where(char.IsDigit).ToArray());
+    public void AtualizarClientePF(
+        string nome,
+        string telefone,
+        string email,
+        string cpf,
+        DateTime dtCadastro)
+    {
+        Nome = nome;
+        Telefone = telefone;
+        Email = email;
+        CPF = cpf;
+        DtCadastro = dtCadastro;
+    }
 }
