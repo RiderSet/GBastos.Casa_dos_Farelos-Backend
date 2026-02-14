@@ -30,7 +30,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
 
-    public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         return await base.SaveChangesAsync(ct);
     }

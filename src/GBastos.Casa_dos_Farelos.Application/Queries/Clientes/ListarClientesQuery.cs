@@ -3,4 +3,4 @@ using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Queries.Clientes;
 
-public sealed record ListarClientesQuery() : IRequest<List<ClientePFDto>>;
+public sealed record ListarClientesQuery() : IRequest<List<ClienteListDto>>;

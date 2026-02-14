@@ -1,14 +1,17 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-
-namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePF : Pessoa
 {
-    public string CPF { get; private set; }
-    public string Telefone { get; private set; }
-    public DateTime DtCadastro { get; private set; }
+    private string v;
+
+    public string CPF { get; private set; } = string.Empty;
+    public DateTime DtNascimento { get; private set; }
 
     private ClientePF() { }
+
+    public ClientePF(string nome, string telefone, string email, string v) : base(nome, telefone, email)
+    {
+    }
 
     public static ClientePF CriarClientePF(
         string nome,
@@ -25,10 +28,8 @@ public sealed class ClientePF : Pessoa
         {
             Id = Guid.NewGuid(),
             Nome = nome,
-            Telefone = telefone,
             Email = email,
-            CPF = cpf,
-            DtCadastro = DateTime.UtcNow
+            CPF = cpf
         };
 
         return cliente;
@@ -42,9 +43,7 @@ public sealed class ClientePF : Pessoa
         DateTime dtCadastro)
     {
         Nome = nome;
-        Telefone = telefone;
         Email = email;
         CPF = cpf;
-        DtCadastro = dtCadastro;
     }
 }

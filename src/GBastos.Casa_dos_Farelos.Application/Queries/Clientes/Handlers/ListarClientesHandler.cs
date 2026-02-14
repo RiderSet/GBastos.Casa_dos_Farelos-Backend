@@ -1,9 +1,10 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
+using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
 
-public sealed class ListarClientesHandler : IRequestHandler<ListarClientesQuery, List<ClienteDto>>
+public sealed class ListarClientesHandler : IRequestHandler<ListarClientesQuery, List<ClienteListDto>>
 {
     private readonly IClientePFRepository _repoPF;
     private readonly IClientePJRepository _repoPJ;
@@ -14,14 +15,14 @@ public sealed class ListarClientesHandler : IRequestHandler<ListarClientesQuery,
         _repoPJ = repoPJ;
     }
 
-    public async Task<List<ClienteDto>> Handle(ListarClientesQuery request, CancellationToken ct)
+    public async Task<List<ClienteListDto>> Handle(ListarClientesQuery request, CancellationToken ct)
     {
         var clientesPF = await _repoPF.ListarAsync(ct);
         var clientesPJ = await _repoPJ.ListarAsync(ct);
 
-        var resultado = new List<ClienteDto>();
+        var resultado = new List<ClienteListDto>();
 
-        resultado.AddRange(clientesPF.Select(c => new ClienteDto(
+        resultado.AddRange(clientesPF.Select(c => new ClienteListDto(
             Id: c.Id,
             Nome: c.Nome,
             Telefone: c.Telefone,
@@ -30,7 +31,7 @@ public sealed class ListarClientesHandler : IRequestHandler<ListarClientesQuery,
             Documento: c.CPF
         )));
 
-        resultado.AddRange(clientesPJ.Select(c => new ClienteDto(
+        resultado.AddRange(clientesPJ.Select(c => new ClienteListDto(
             Id: c.Id,
             Nome: c.NomeFantasia,
             Telefone: c.Telefone,

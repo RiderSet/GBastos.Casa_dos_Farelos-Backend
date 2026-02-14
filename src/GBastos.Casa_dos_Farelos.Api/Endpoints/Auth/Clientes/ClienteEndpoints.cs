@@ -13,21 +13,12 @@ public static class ClienteEndpoints
                        .WithTags("Clientes")
                        .RequireAuthorization();
 
-        // ======= GET =======
         group.MapGet("/", ListarTodos);
-
-        // ======= GET by Id =======
         group.MapGet("/{id:guid}", ObterPorId);
-
-        // ======= POST =======
         group.MapPost("/pf", CriarPF);
         group.MapPost("/pj", CriarPJ);
-
-        // ======= PUT =======
         group.MapPut("/pf/{id:guid}", AtualizarPF);
         group.MapPut("/pj/{id:guid}", AtualizarPJ);
-
-        // ======= DELETE =======
         group.MapDelete("/{id:guid}", Remover);
 
         return app;
@@ -42,7 +33,7 @@ public static class ClienteEndpoints
         var clientesPF = await repoPF.ListarAsync(ct);
         var clientesPJ = await repoPJ.ListarAsync(ct);
 
-        var resultado = clientesPF.Select(c => new ClienteDto(
+        var resultado = clientesPF.Select(c => new ClienteListDto(
             Id: c.Id,
             Nome: c.Nome,
             Telefone: c.Telefone,
@@ -51,7 +42,7 @@ public static class ClienteEndpoints
             Documento: c.CPF
         )).ToList();
 
-        resultado.AddRange(clientesPJ.Select(c => new ClienteDto(
+        resultado.AddRange(clientesPJ.Select(c => new ClienteListDto(
             Id: c.Id,
             Nome: c.NomeFantasia,
             Telefone: c.Telefone,
@@ -73,22 +64,18 @@ public static class ClienteEndpoints
     {
         var clientePF = await repoPF.ObterPorIdAsync(id, ct);
         if (clientePF != null)
-        {
-            var dto = new ClienteDto(
+            return Results.Ok(new ClienteListDto(
                 Id: clientePF.Id,
                 Nome: clientePF.Nome,
                 Telefone: clientePF.Telefone,
                 Email: clientePF.Email,
                 Tipo: "PF",
                 Documento: clientePF.CPF
-            );
-            return Results.Ok(dto);
-        }
+            ));
 
         var clientePJ = await repoPJ.ObterPorIdAsync(id, ct);
         if (clientePJ != null)
-        {
-            var dto = new ClienteDto(
+            return Results.Ok(new ClienteListDto(
                 Id: clientePJ.Id,
                 Nome: clientePJ.NomeFantasia,
                 Telefone: clientePJ.Telefone,
@@ -96,9 +83,7 @@ public static class ClienteEndpoints
                 Tipo: "PJ",
                 Documento: clientePJ.CNPJ,
                 Contato: clientePJ.Contato
-            );
-            return Results.Ok(dto);
-        }
+            ));
 
         return Results.NotFound();
     }
@@ -156,7 +141,7 @@ public static class ClienteEndpoints
         var cliente = await repo.ObterPorIdAsync(id, ct);
         if (cliente is null) return Results.NotFound();
 
-        cliente.AtualizarClentePJ(request.Nome, request.Email, request.Telefone, request.CNPJ, request.Contato, request.DtCadastro);
+        cliente.AtualizarClentePJ(request.Nome, request.Email, request.Telefone, request.CNPJ, request.Contato, DateTime.Now);
         await uow.SaveChangesAsync(ct);
         return Results.NoContent();
     }
