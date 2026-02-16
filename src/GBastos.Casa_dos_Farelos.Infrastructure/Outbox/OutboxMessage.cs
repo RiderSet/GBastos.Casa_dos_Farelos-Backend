@@ -1,56 +1,59 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
 public sealed class OutboxMessage : BaseEntity
 {
     public DateTime OccurredOn { get; private set; }
-    public string Type { get; private set; } = null!;
+    public string EventName { get; private set; } = null!;
     public string Payload { get; private set; } = null!;
-
     public DateTime? ProcessedOn { get; private set; }
     public string? Error { get; private set; }
 
     public bool IsProcessed => ProcessedOn.HasValue;
 
-    private OutboxMessage() { } // EF
+    private OutboxMessage() { }
 
-    private OutboxMessage(Guid id, DateTime occurredOn, string type, string payload)
+    private OutboxMessage(Guid id, string eventName, string payload, DateTime occurredOnUtc)
     {
         Id = id;
-        OccurredOn = occurredOn;
-        Type = type;
+        EventName = eventName;
         Payload = payload;
+        OccurredOn = occurredOnUtc;
     }
 
-    public static OutboxMessage Create(object domainEvent, Guid id, DateTime occurredOn)
+    public static OutboxMessage CreateIntegrationEvent(object integrationEvent)
     {
-        return new OutboxMessage
-        {
-            Id = id,
-            Type = domainEvent.GetType().Name,
-            Payload = JsonSerializer.Serialize(domainEvent),
-            OccurredOn = occurredOn,
-            ProcessedOn = null,
-            Error = null
-        };
+        var eventName = integrationEvent.GetType().Name;
+
+        return new OutboxMessage(
+            Guid.NewGuid(),
+            eventName,
+            JsonSerializer.Serialize(integrationEvent),
+            DateTime.UtcNow
+        );
     }
 
-    public void MarkAsProcessed()
+    public static OutboxMessage CreateDomainEvent(object domainEvent)
+    {
+        var eventName = domainEvent.GetType().Name;
+
+        return new OutboxMessage(
+            Guid.NewGuid(),
+            eventName,
+            JsonSerializer.Serialize(domainEvent),
+            DateTime.UtcNow
+        );
+    }
+
+    public void MarkProcessed()
     {
         ProcessedOn = DateTime.UtcNow;
         Error = null;
     }
 
-    public void MarkAsFailed(string error)
-    {
-        Error = error;
-        ProcessedOn = null;
-    }
-
-    public void SetError(string error)
+    public void MarkFailed(string error)
     {
         Error = error;
     }

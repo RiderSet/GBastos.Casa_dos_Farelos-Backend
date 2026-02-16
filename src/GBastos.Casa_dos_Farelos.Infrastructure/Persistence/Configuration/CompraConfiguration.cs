@@ -15,7 +15,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Configuration
             builder.Property(x => x.FornecedorId).IsRequired();
             builder.Property(x => x.DataCompra).IsRequired();
 
-            builder.Ignore(x => x.TotalCompra);
+            builder.Ignore(x => x.ValorTotal);
 
             builder.Metadata
                    .FindNavigation(nameof(Compra.Itens))!

@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+﻿using GBastos.Casa_dos_Farelos.Shared.Events;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Events.Usuarios;
 

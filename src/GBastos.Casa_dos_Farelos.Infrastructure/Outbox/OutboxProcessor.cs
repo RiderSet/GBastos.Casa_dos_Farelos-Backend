@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,11 +47,12 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox
 
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+            var resolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
 
             var messages = await db.OutboxMessages
                 .Where(x => x.ProcessedOn == null)
                 .OrderBy(x => x.OccurredOn)
-                .Take(20)
+                .Take(50)
                 .ToListAsync(ct);
 
             if (messages.Count == 0)
@@ -62,31 +64,29 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox
             {
                 try
                 {
-                    var type = Type.GetType(message.Type);
+                    var type = resolver.Resolve(message.EventName);
                     if (type == null)
                     {
-                        message.SetError($"Tipo não encontrado: {message.Type}");
+                        message.MarkFailed($"Tipo não mapeado: {message.EventName}");
                         continue;
                     }
 
-                    var domainEvent = JsonSerializer.Deserialize(message.Payload, type);
-                    if (domainEvent == null)
+                    var integrationEvent = JsonSerializer.Deserialize(message.Payload, type);
+                    if (integrationEvent == null)
                     {
-                        message.SetError("Falha ao desserializar evento");
+                        message.MarkFailed("Falha ao desserializar evento");
                         continue;
                     }
 
-                    await bus.Publish(domainEvent, ct);
-
-                    message.MarkAsProcessed();
+                    await bus.Publish(integrationEvent, ct);
+                    message.MarkProcessed();
                 }
                 catch (Exception ex)
                 {
-                    message.SetError(ex.Message);
+                    message.MarkFailed(ex.Message);
                     _logger.LogError(ex, "Erro ao processar mensagem {Id}", message.Id);
                 }
             }
-
             await db.SaveChangesAsync(ct);
         }
     }

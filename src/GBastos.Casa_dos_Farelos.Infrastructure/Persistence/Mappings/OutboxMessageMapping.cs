@@ -4,28 +4,40 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Mappings;
 
-public class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessage>
+public sealed class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessage>
 {
     public void Configure(EntityTypeBuilder<OutboxMessage> builder)
     {
-        builder.ToTable("OutboxMessages");
+        builder.ToTable("outbox_messages");
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Type)
+        // routing key do evento
+        builder.Property(x => x.EventName)
             .HasMaxLength(200)
             .IsRequired();
 
-        builder.Property(x => x.Payload).HasColumnType("nvarchar(max)")
+        // json do evento
+        builder.Property(x => x.Payload)
+            .HasColumnType("nvarchar(max)")
             .IsRequired();
 
+        // quando ocorreu
         builder.Property(x => x.OccurredOn)
             .IsRequired();
 
-        builder.Property(x => x.ProcessedOn);
+        // controle de processamento
+        builder.Property(x => x.ProcessedOn)
+            .IsRequired(false);
 
-        builder.Property(x => x.Error);
+        builder.Property(x => x.Error)
+            .HasColumnType("nvarchar(max)")
+            .IsRequired(false);
 
         builder.Ignore(x => x.IsProcessed);
+
+        // 🔥 índice crítico do outbox (performance)
+        builder.HasIndex(x => new { x.ProcessedOn, x.OccurredOn })
+            .HasDatabaseName("IX_Outbox_Processing");
     }
 }

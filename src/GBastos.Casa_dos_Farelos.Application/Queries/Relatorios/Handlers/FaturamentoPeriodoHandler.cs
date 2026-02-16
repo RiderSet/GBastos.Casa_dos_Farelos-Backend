@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using GBastos.Casa_dos_Farelos.Application.Dtos;
 using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Queries.Relatorios.Handlers;
@@ -27,8 +27,8 @@ public sealed class FaturamentoPeriodoHandler
 
         var result = await conn.QuerySingleAsync(sql, request);
 
-        decimal lucro = result.TotalVendas - result.TotalCompras;
+        decimal lucro = result.TotalVendas - result.ValorTotals;
 
-        return new(result.TotalVendas, result.TotalCompras, lucro);
+        return new(result.TotalVendas, result.ValorTotals, lucro);
     }
 }

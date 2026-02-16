@@ -6,6 +6,7 @@ using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
 using GBastos.Casa_dos_Farelos.Infrastructure.Extensioons;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
@@ -81,6 +82,10 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorNumbersToAdd: null))
         .AddInterceptors(interceptor);
+
+    options.AddInterceptors(
+        sp.GetRequiredService<PublishDomainEventsInterceptor>(),
+        sp.GetRequiredService<OutboxSaveChangesInterceptor>());
 });
 
 // ======== Swagger ========

@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Common;
 
@@ -8,7 +8,7 @@ public abstract class AggregateRoot
 
     private readonly List<IDomainEvent> _domainEvents = new();
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents;
 
     protected void AddDomainEvent(IDomainEvent domainEvent)
         => _domainEvents.Add(domainEvent);

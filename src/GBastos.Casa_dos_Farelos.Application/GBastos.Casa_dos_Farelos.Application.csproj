@@ -19,12 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Domain\GBastos.Casa_dos_Farelos.Domain.csproj" />
+    <Folder Include="Commands\Compras\EventHandlers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\Fornecedores\" />
-    <Folder Include="Queries\Fornecedores\Handlers\" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Domain\GBastos.Casa_dos_Farelos.Domain.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Shared\GBastos.Casa_dos_Farelos.Shared.csproj" />
   </ItemGroup>
 
 </Project>

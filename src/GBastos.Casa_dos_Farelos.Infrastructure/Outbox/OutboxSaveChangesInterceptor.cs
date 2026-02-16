@@ -1,7 +1,4 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-using GBastos.Casa_dos_Farelos.Domain.Interfaces;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
@@ -28,11 +25,7 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
 
         foreach (var domainEvent in domainEvents)
         {
-            var outboxMessage = OutboxMessage.Create(
-                domainEvent,
-                Guid.NewGuid(),
-                DateTime.UtcNow);
-
+            var outboxMessage = OutboxMessage.CreateDomainEvent(domainEvent);
             context.Set<OutboxMessage>().Add(outboxMessage);
         }
 

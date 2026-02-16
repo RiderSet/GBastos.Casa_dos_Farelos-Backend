@@ -1,7 +1,7 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
-using GBastos.Casa_dos_Farelos.Domain.Common;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
@@ -19,33 +19,34 @@ public sealed class OutboxService : IOutbox
 
     public async Task AddAsync(IIntegrationEvent integrationEvent, CancellationToken ct = default)
     {
-        var message = OutboxMessage.Create(
-            integrationEvent,
-            integrationEvent.Id,
-            integrationEvent.OccurredOn
-        );
-
+        var message = OutboxMessage.CreateIntegrationEvent(integrationEvent);
         await _db.Set<OutboxMessage>().AddAsync(message, ct);
     }
 
     public async Task SaveEventsAsync(DbContext dbContext, CancellationToken ct)
     {
-        var domainEvents = dbContext.ChangeTracker
+        var aggregates = dbContext.ChangeTracker
             .Entries<AggregateRoot>()
-            .SelectMany(e => e.Entity.DomainEvents)
+            .Where(e => e.Entity.DomainEvents.Any())
             .ToList();
 
-        foreach (var domainEvent in domainEvents)
+        foreach (var entry in aggregates)
         {
-            var integrationEvent = _mapper.Map(domainEvent);
+            var domainEvents = entry.Entity.DomainEvents.ToList();
 
-            var message = OutboxMessage.Create(
-                integrationEvent,
-                integrationEvent.Id,
-                integrationEvent.OccurredOn
-            );
+            entry.Entity.ClearDomainEvents(); // 🔥 ESSENCIAL
 
-            await dbContext.Set<OutboxMessage>().AddAsync(message, ct);
+            foreach (var domainEvent in domainEvents)
+            {
+                var integrationEvent = _mapper.Map(domainEvent);
+
+                if (integrationEvent is null)
+                    continue;
+
+                var message = OutboxMessage.CreateIntegrationEvent(integrationEvent);
+
+                await dbContext.Set<OutboxMessage>().AddAsync(message, ct);
+            }
         }
     }
 }

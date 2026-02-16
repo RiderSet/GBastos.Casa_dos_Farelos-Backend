@@ -18,8 +18,8 @@ public class CompraMapping : IEntityTypeConfiguration<Compra>
         builder.Property(c => c.FornecedorId)
                .IsRequired();
 
-        //   builder.Ignore(c => c.TotalCompra);
-        builder.Ignore(c => c.TotalCompra);
+        //   builder.Ignore(c => c.ValorTotal);
+        builder.Ignore(c => c.ValorTotal);
 
         builder.Metadata
             .FindNavigation(nameof(Compra.Itens))!

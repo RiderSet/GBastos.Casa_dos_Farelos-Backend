@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +10,21 @@ public sealed class OutboxDispatcher : IOutboxDispatcher
 {
     private readonly AppDbContext _db;
     private readonly IPublisher _publisher;
+    private readonly IEventTypeResolver _resolver;
 
-    public OutboxDispatcher(AppDbContext db, IPublisher publisher)
+    public OutboxDispatcher(AppDbContext db, IPublisher publisher, IEventTypeResolver resolver)
     {
         _db = db;
         _publisher = publisher;
+        _resolver = resolver;
     }
 
     public async Task DispatchOutboxAsync(CancellationToken ct = default)
     {
-        // pega somente eventos pendentes
         var messages = await _db.OutboxMessages
             .Where(x => !x.IsProcessed)
             .OrderBy(x => x.OccurredOn)
-            .Take(50) // lote para não travar banco
+            .Take(50)
             .ToListAsync(ct);
 
         if (messages.Count == 0)
@@ -33,33 +34,29 @@ public sealed class OutboxDispatcher : IOutboxDispatcher
         {
             try
             {
-                // Descobre o tipo do evento
-                var type = Type.GetType($"GBastos.Casa_dos_Farelos.Domain.Events.{message.Type}");
+                var type = _resolver.Resolve(message.EventName);
 
                 if (type is null)
                 {
-                    message.MarkAsFailed("Tipo do evento não encontrado");
+                    message.MarkFailed($"Tipo não encontrado: {message.EventName}");
                     continue;
                 }
 
-                // Desserializa o evento
                 var domainEvent = JsonSerializer.Deserialize(message.Payload, type);
 
                 if (domainEvent is null)
                 {
-                    message.MarkAsFailed("Falha ao desserializar evento");
+                    message.MarkFailed("Falha ao desserializar evento");
                     continue;
                 }
 
-                // Publica via MediatR (in-process)
                 await _publisher.Publish(domainEvent, ct);
 
-                // Marca como processado
-                message.MarkAsProcessed();
+                message.MarkProcessed();
             }
             catch (Exception ex)
             {
-                message.MarkAsFailed(ex.Message);
+                message.MarkFailed(ex.Message);
             }
         }
 

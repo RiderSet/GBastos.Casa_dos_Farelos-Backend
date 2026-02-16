@@ -1,25 +1,29 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
 public class AppDbContext : DbContext, IAppDbContext
 {
-    private readonly PublishDomainEventsInterceptor _domainEventsInterceptor;
-    private readonly OutboxSaveChangesInterceptor _outboxInterceptor;
+    private readonly IEnumerable<IInterceptor> _interceptors;
 
+    // Construtor usado pela API (com DI)
     public AppDbContext(
         DbContextOptions<AppDbContext> options,
-        PublishDomainEventsInterceptor domainEventsInterceptor,
-        OutboxSaveChangesInterceptor outboxInterceptor)
+        IEnumerable<IInterceptor>? interceptors = null)
         : base(options)
     {
-        _domainEventsInterceptor = domainEventsInterceptor;
-        _outboxInterceptor = outboxInterceptor;
+        _interceptors = interceptors ?? Enumerable.Empty<IInterceptor>();
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (_interceptors.Any())
+            optionsBuilder.AddInterceptors(_interceptors);
     }
 
     // ================= DbSets =================
@@ -40,19 +44,17 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     // ================= SaveChangesAsync =================
-    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
-    {
-        // 1️⃣ Dispara eventos de domínio antes do commit
-        await _domainEventsInterceptor.DispatchDomainEventsAsync(this);
+    public override Task<int> SaveChangesAsync(CancellationToken ct = default)
+        => base.SaveChangesAsync(ct);
 
-        // 2️⃣ Salva no banco
-        var result = await base.SaveChangesAsync(ct);
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    if (_domainEventsInterceptor is not null)
+    //        optionsBuilder.AddInterceptors(_domainEventsInterceptor);
 
-        // 3️⃣ Dispara mensagens da Outbox após o commit
-        await _outboxInterceptor.DispatchOutboxAsync(this, ct);
-
-        return result;
-    }
+    //    if (_outboxInterceptor is not null)
+    //        optionsBuilder.AddInterceptors(_outboxInterceptor);
+    //}
 
     // ================= OnModelCreating =================
     protected override void OnModelCreating(ModelBuilder modelBuilder)

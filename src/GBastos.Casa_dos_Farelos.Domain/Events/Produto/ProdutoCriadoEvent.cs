@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Events.Produto
 {

@@ -2,6 +2,7 @@
 using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Domain.Enums;
+using GBastos.Casa_dos_Farelos.Domain.Queries.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

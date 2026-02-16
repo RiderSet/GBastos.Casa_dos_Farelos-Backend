@@ -5,11 +5,12 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Caching;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Mappings;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
 using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
 using GBastos.Casa_dos_Farelos.Shared.Events;
+using GBastos.Casa_dos_Farelos.Shared.Events.Compras;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,9 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
 
             services.AddSingleton<IEventBus, InMemoryEventBus>();
             services.AddHostedService<OutboxProcessor>();
+
+            services.AddScoped<PublishDomainEventsInterceptor>();
+            services.AddScoped<OutboxSaveChangesInterceptor>();
 
             services.Scan(scan => scan
                 .FromApplicationDependencies()

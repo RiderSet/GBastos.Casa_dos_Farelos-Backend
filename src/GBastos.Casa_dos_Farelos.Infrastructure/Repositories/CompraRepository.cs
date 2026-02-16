@@ -1,7 +1,9 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
-using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.Dtos;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
@@ -53,7 +55,7 @@ public class CompraRepository : ICompraRepository
             .Select(c => new CompraDto(
                 c.Id,
                 c.FornecedorId,
-                c.TotalCompra,
+                c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
                     .Join(_db.Produtos,
@@ -87,7 +89,7 @@ public class CompraRepository : ICompraRepository
             .Select(c => new CompraDto(
                 c.Id,
                 c.FornecedorId,
-                c.TotalCompra,
+                c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
                     .Join(_db.Produtos,
@@ -127,7 +129,7 @@ public class CompraRepository : ICompraRepository
             .Select(c => new CompraDto(
                 c.Id,
                 c.FornecedorId,
-                c.TotalCompra,
+                c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
                     .Join(_db.Produtos,

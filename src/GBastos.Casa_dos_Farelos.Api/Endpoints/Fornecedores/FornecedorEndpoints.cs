@@ -81,7 +81,7 @@ public static class FornecedorEndpoints
         if (fornecedor is null)
             return Results.NotFound();
 
-        fornecedor.Atualizar(request.Nome, request.Email, request.Documento, request.DtCadastro);
+        fornecedor.Atualizar(request.Nome, request.Email, request.Documento, request.CNPJ, request.DtCadastro);
 
         await db.SaveChangesAsync();
 
@@ -105,5 +105,5 @@ public static class FornecedorEndpoints
     // ================= REQUESTS =================
 
     public record CreateFornecedorRequest(string Nome, string Email, string Documento, DateTime DtCadastro);
-    public record UpdateFornecedorRequest(string Nome, string Email, string Documento, DateTime DtCadastro);
+    public record UpdateFornecedorRequest(string Nome, string Email, string Documento, string CNPJ, DateTime DtCadastro);
 }

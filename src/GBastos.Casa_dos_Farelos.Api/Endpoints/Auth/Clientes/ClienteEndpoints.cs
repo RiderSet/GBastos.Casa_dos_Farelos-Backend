@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
-using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 

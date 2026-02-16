@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
+﻿using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

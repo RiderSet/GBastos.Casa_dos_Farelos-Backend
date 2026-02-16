@@ -14,7 +14,7 @@ public class Compra : AggregateRoot
     private readonly List<ItemCompra> _itens = new();
     public IReadOnlyCollection<ItemCompra> Itens => _itens.AsReadOnly();
 
-    public decimal TotalCompra => _itens.Sum(i => i.SubTotal);
+    public decimal ValorTotal => _itens.Sum(i => i.SubTotal);
 
     protected Compra() { } // EF
 
@@ -71,7 +71,7 @@ public class Compra : AggregateRoot
         AddDomainEvent(new CompraCriadaDomainEvent(
             Id,
             FornecedorId,
-            TotalCompra,
+            ValorTotal,
             _itens.Select(i => new CompraItemSnapshot(
                 i.ProdutoId,
                 i.NomeProduto,

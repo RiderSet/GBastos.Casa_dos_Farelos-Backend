@@ -1,4 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Queries.Produtos.ObetrProdutos;
+using GBastos.Casa_dos_Farelos.Application.Queries.Relatorios;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using MediatR;

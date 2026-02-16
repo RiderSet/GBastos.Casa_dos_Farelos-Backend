@@ -1,8 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
 
-namespace GBastos.Casa_dos_Farelos.Shared.Events;
+namespace GBastos.Casa_dos_Farelos.Shared.Events.Compras;
 
 public sealed class InMemoryEventBus : IEventBus
 {

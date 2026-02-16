@@ -1,4 +1,6 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Common;
+﻿using GBastos.Casa_dos_Farelos.Domain.Events;
+
+namespace GBastos.Casa_dos_Farelos.Domain.Common;
 
 public abstract class BaseEntity
 {

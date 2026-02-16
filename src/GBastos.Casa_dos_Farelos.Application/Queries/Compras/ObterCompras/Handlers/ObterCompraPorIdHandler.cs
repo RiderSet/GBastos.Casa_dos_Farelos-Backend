@@ -1,5 +1,6 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
-using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +31,7 @@ public sealed class ObterCompraPorIdHandler
         return new CompraDto(
             compra.Id,
             compra.FornecedorId,
-            compra.TotalCompra,
+            compra.ValorTotal,
             compra.Itens.Select(i => new CompraItemDto(
                 i.ProdutoId,
                 i.NomeProduto,
