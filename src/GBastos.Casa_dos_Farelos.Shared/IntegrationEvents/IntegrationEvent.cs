@@ -1,12 +1,15 @@
 ﻿using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 
-namespace GBastos.Casa_dos_Farelos.Domain.Abstractions;
+namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
-public abstract record IntegrationEvent : IIntegrationEvent
+public sealed record PedidoCriadoIntegrationEvent(
+    Guid Id,
+    Guid PedidoId,
+    Guid ClienteId,
+    decimal Total,
+    DateTime OccurredOnUtc
+) : IIntegrationEvent
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
-
     public string EventType => throw new NotImplementedException();
 
     public int Version => throw new NotImplementedException();

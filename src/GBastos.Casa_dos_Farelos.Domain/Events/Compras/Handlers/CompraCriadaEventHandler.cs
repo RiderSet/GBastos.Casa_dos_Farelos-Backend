@@ -8,9 +8,9 @@ namespace GBastos.Casa_dos_Farelos.Domain.Events.Compras.Handlers;
 
 public class CompraCriadaEventHandler : INotificationHandler<CompraCriadaDomainEvent>
 {
-    private readonly IOutbox _outbox;
+    private readonly IIntegrationEventOutbox _outbox;
 
-    public CompraCriadaEventHandler(IOutbox outbox) => _outbox = outbox;
+    public CompraCriadaEventHandler(IIntegrationEventOutbox outbox) => _outbox = outbox;
 
     public async Task Handle(CompraCriadaDomainEvent notification, CancellationToken cancellationToken)
     {

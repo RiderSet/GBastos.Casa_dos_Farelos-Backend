@@ -1,6 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 
-namespace GBastos.Casa_dos_Farelos.Domain.Abstractions;
+namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
 public abstract record BaseIntegrationEvent : IIntegrationEvent
 {
@@ -50,4 +50,6 @@ public abstract record BaseIntegrationEvent : IIntegrationEvent
     /// Multi-tenant
     /// </summary>
     public Guid? TenantId { get; init; }
+
+    public DateTime OccurredOnUtc => throw new NotImplementedException();
 }

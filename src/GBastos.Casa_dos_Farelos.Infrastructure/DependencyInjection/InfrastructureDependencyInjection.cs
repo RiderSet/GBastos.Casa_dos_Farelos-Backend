@@ -9,7 +9,6 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
 using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
-using GBastos.Casa_dos_Farelos.Shared.Events;
 using GBastos.Casa_dos_Farelos.Shared.Events.Compras;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.Data.SqlClient;
@@ -48,7 +47,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
             services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
-            services.AddScoped<IOutbox, OutboxService>();
+            services.AddScoped<IIntegrationEventOutbox, OutboxService>();
             services.AddHostedService<OutboxProcessor>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddHostedService<OutboxWorker>();
@@ -57,7 +56,14 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddHostedService<OutboxProcessor>();
 
             services.AddScoped<PublishDomainEventsInterceptor>();
-            services.AddScoped<OutboxSaveChangesInterceptor>();
+           // services.AddScoped<OutboxSaveChangesInterceptor>();
+
+            //services.AddSingleton<OutboxSaveChangesInterceptor>();
+            //services.AddDbContext<AppDbContext>((sp, options) =>
+            //{
+            //    options.UseSqlServer(connectionString);
+            //    options.AddInterceptors(sp.GetRequiredService<OutboxSaveChangesInterceptor>());
+            //});
 
             services.Scan(scan => scan
                 .FromApplicationDependencies()

@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.IntegrationsEvents;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Dispatchers;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,12 +9,10 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 public sealed class OutboxWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IntegrationEventDispatcher _dispatcher;
 
-    public OutboxWorker(IServiceScopeFactory scopeFactory, IntegrationEventDispatcher dispatcher)
+    public OutboxWorker(IServiceScopeFactory scopeFactory)
     {
         _scopeFactory = scopeFactory;
-        _dispatcher = dispatcher;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,8 +23,8 @@ public sealed class OutboxWorker : BackgroundService
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
             var messages = await db.OutboxMessages
-                .Where(x => x.ProcessedOn == null)
-                .OrderBy(x => x.OccurredOn)
+                .Where(x => x.ProcessedOnUtc == null)
+                .OrderBy(x => x.OccurredOnUtc)
                 .Take(50)
                 .ToListAsync(stoppingToken);
 
@@ -34,10 +32,10 @@ public sealed class OutboxWorker : BackgroundService
             {
                 try
                 {
-                    await _dispatcher.DispatchAsync(
-                        msg.EventName,
-                        msg.Payload,
+                    await IntegrationEventDispatcher.DispatchAsync(
                         scope.ServiceProvider,
+                        msg.Payload,
+                        msg.EventName,
                         stoppingToken);
 
                     msg.MarkProcessed();
@@ -49,7 +47,8 @@ public sealed class OutboxWorker : BackgroundService
             }
 
             await db.SaveChangesAsync(stoppingToken);
-            await Task.Delay(200, stoppingToken);
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
         }
     }
 }

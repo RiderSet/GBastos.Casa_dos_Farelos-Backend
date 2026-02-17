@@ -5,7 +5,7 @@ using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
-namespace GBastos.Casa_dos_Farelos.Domain.IntegrationsEvents;
+namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
 public sealed class IntegrationEventDispatcher
 {

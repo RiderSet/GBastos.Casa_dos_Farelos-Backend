@@ -1,7 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using System.Reflection;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
 public sealed class IntegrationEventTypeResolver : IIntegrationEventTypeResolver
 {

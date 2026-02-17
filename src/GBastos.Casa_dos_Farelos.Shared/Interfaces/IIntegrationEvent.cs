@@ -3,7 +3,7 @@
 public interface IIntegrationEvent
 {
     Guid Id { get; }
-    DateTime OccurredOn { get; }
+    DateTime OccurredOnUtc { get; }
     string EventType { get; }
     int Version { get; }
 }

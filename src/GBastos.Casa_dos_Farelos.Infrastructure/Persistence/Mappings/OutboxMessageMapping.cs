@@ -23,11 +23,11 @@ public sealed class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessag
             .IsRequired();
 
         // quando ocorreu
-        builder.Property(x => x.OccurredOn)
+        builder.Property(x => x.OccurredOnUtc)
             .IsRequired();
 
         // controle de processamento
-        builder.Property(x => x.ProcessedOn)
+        builder.Property(x => x.ProcessedOnUtc)
             .IsRequired(false);
 
         builder.Property(x => x.Error)
@@ -37,7 +37,7 @@ public sealed class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessag
         builder.Ignore(x => x.IsProcessed);
 
         // 🔥 índice crítico do outbox (performance)
-        builder.HasIndex(x => new { x.ProcessedOn, x.OccurredOn })
+        builder.HasIndex(x => new { x.ProcessedOnUtc, x.OccurredOnUtc })
             .HasDatabaseName("IX_Outbox_Processing");
     }
 }

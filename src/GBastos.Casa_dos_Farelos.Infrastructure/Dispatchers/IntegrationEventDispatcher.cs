@@ -5,30 +5,25 @@ using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Dispatchers;
 
-public sealed class IntegrationEventDispatcher
+public static class IntegrationEventDispatcher
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public IntegrationEventDispatcher(IServiceProvider serviceProvider)
+    public static async Task DispatchAsync(
+        IServiceProvider provider,
+        string payload,
+        string eventType,
+        CancellationToken ct)
     {
-        _serviceProvider = serviceProvider;
-    }
+        var type = Type.GetType(eventType)!;
 
-    public async Task DispatchAsync(IIntegrationEvent evt, CancellationToken ct)
-    {
-        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(evt.GetType());
-        var handlers = _serviceProvider.GetServices(handlerType);
+        var evt = (IIntegrationEvent)JsonSerializer.Deserialize(payload, type)!;
+
+        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(type);
+        var handlers = provider.GetServices(handlerType);
 
         foreach (var handler in handlers)
         {
-            var method = handlerType.GetMethod("HandleAsync")!;
+            var method = handlerType.GetMethod(nameof(IIntegrationEventHandler<IIntegrationEvent>.HandleAsync))!;
             await (Task)method.Invoke(handler, new object[] { evt, ct })!;
         }
-    }
-
-    public async Task DispatchAsync(string payload, Type eventType, CancellationToken ct)
-    {
-        var evt = (IIntegrationEvent)JsonSerializer.Deserialize(payload, eventType)!;
-        await DispatchAsync(evt, ct);
     }
 }

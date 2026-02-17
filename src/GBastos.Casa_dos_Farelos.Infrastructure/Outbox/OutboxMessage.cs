@@ -1,26 +1,38 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
+using GBastos.Casa_dos_Farelos.Domain.Common;
 using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
 public sealed class OutboxMessage : BaseEntity
 {
-    public DateTime OccurredOn { get; private set; }
+    public DateTime OccurredOnUtc { get; private set; }
     public string EventName { get; private set; } = null!;
     public string Payload { get; private set; } = null!;
-    public DateTime? ProcessedOn { get; private set; }
+    public DateTime? ProcessedOnUtc { get; private set; }
     public string? Error { get; private set; }
 
-    public bool IsProcessed => ProcessedOn.HasValue;
+    public bool IsProcessed => ProcessedOnUtc.HasValue;
 
     private OutboxMessage() { }
 
-    private OutboxMessage(Guid id, string eventName, string payload, DateTime occurredOnUtc)
+    public OutboxMessage(Guid id, string eventName, string payload, DateTime utcNow)
     {
         Id = id;
         EventName = eventName;
         Payload = payload;
-        OccurredOn = occurredOnUtc;
+        ProcessedOnUtc = utcNow;
+    }
+
+    public static OutboxMessage Create(IDomainEvent domainEvent)
+    {
+        return new OutboxMessage
+        {
+            Id = Guid.NewGuid(),
+            OccurredOnUtc = domainEvent.OccurredOnUtc,
+            EventName = domainEvent.GetType().AssemblyQualifiedName!,
+            Payload = JsonSerializer.Serialize(domainEvent)
+        };
     }
 
     public static OutboxMessage CreateIntegrationEvent(object integrationEvent)
@@ -49,7 +61,7 @@ public sealed class OutboxMessage : BaseEntity
 
     public void MarkProcessed()
     {
-        ProcessedOn = DateTime.UtcNow;
+        ProcessedOnUtc = DateTime.UtcNow;
         Error = null;
     }
 

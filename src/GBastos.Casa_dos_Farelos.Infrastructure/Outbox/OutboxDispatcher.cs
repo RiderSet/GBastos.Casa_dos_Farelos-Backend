@@ -23,7 +23,7 @@ public sealed class OutboxDispatcher : IOutboxDispatcher
     {
         var messages = await _db.OutboxMessages
             .Where(x => !x.IsProcessed)
-            .OrderBy(x => x.OccurredOn)
+            .OrderBy(x => x.OccurredOnUtc)
             .Take(50)
             .ToListAsync(ct);
 

@@ -8,7 +8,7 @@ public sealed class ClienteCriadoDomainEvent : IDomainEvent
     public string Nome { get; }
     public string Documento { get; }
     public string Tipo { get; }
-    public DateTime OccurredOn { get; }
+    public DateTime OccurredOnUtc { get; }
 
     public ClienteCriadoDomainEvent(
         Guid clienteId,
@@ -20,6 +20,6 @@ public sealed class ClienteCriadoDomainEvent : IDomainEvent
         Nome = nome;
         Documento = documento;
         Tipo = tipo;
-        OccurredOn = DateTime.UtcNow;
+        OccurredOnUtc = DateTime.UtcNow;
     }
 }

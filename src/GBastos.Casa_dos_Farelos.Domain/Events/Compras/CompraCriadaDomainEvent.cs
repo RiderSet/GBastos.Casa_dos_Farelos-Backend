@@ -9,7 +9,7 @@ public sealed record CompraCriadaDomainEvent(
     List<CompraItemSnapshot> Itens
 ) : IDomainEvent
 {
-    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+    public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }
 
 //public sealed class CompraCriadaDomainEvent : INotification

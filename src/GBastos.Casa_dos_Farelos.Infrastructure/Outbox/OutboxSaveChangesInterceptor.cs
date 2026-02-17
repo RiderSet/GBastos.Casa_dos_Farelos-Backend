@@ -10,12 +10,12 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        var context = eventData.Context;
+        var dbContext = eventData.Context;
 
-        if (context is null)
+        if (dbContext is null)
             return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-        var domainEvents = context.ChangeTracker
+        var domainEvents = dbContext.ChangeTracker
             .Entries<AggregateRoot>()
             .SelectMany(e => e.Entity.DomainEvents)
             .ToList();
@@ -26,12 +26,14 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         foreach (var domainEvent in domainEvents)
         {
             var outboxMessage = OutboxMessage.CreateDomainEvent(domainEvent);
-            context.Set<OutboxMessage>().Add(outboxMessage);
+            dbContext.Set<OutboxMessage>().Add(outboxMessage);
         }
 
         // limpa eventos após salvar
-        foreach (var entry in context.ChangeTracker.Entries<AggregateRoot>())
+        foreach (var entry in dbContext.ChangeTracker.Entries<AggregateRoot>())
             entry.Entity.ClearDomainEvents();
+
+       // dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }

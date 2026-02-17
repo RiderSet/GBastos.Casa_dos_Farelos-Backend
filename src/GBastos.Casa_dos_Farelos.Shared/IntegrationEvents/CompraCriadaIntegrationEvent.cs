@@ -1,5 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
-using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
+﻿using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 
 namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 

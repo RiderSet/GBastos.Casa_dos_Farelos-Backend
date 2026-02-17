@@ -81,7 +81,8 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
             maxRetryCount: 10,
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorNumbersToAdd: null))
-        .AddInterceptors(interceptor);
+        .AddInterceptors(interceptor)
+        .AddInterceptors(sp.GetRequiredService<OutboxSaveChangesInterceptor>()); ;
 
     options.AddInterceptors(
         sp.GetRequiredService<PublishDomainEventsInterceptor>(),

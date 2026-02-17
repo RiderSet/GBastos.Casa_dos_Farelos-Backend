@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
-public sealed class OutboxService : IOutbox
+public sealed class OutboxService : IIntegrationEventOutbox
 {
     private readonly AppDbContext _db;
     private readonly IIntegrationEventMapper _mapper;
