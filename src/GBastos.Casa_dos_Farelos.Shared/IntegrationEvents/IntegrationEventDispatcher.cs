@@ -25,6 +25,8 @@ public static class IntegrationEventDispatcher
         var type = typeResolver.Resolve(eventType);
 
         // Desserializa o payload
+        if (type == null)
+            throw new InvalidOperationException($"Não foi possível resolver o tipo para o evento '{eventType}'.");
         var evt = (IIntegrationEvent)JsonSerializer.Deserialize(payload, type)!;
 
         // Resolve os handlers registrados
