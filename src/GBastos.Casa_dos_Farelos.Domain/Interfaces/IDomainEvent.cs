@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace GBastos.Casa_dos_Farelos.Domain.Abstractions;
+namespace GBastos.Casa_dos_Farelos.Domain.Interfaces;
 
 public interface IDomainEvent : INotification
 {

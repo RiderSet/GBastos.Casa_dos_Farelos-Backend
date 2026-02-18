@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using GBastos.Casa_dos_Farelos.Api.Extensions;
 using GBastos.Casa_dos_Farelos.Application.Common;
+using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
 using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
@@ -10,6 +12,7 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
+using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -89,6 +92,8 @@ var jwt = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwt["Key"] ?? throw new InvalidOperationException("Jwt:Key não configurado"));
 
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// builder.Services.AddTransient<IIntegrationEventHandler<ClienteCriadoIntegrationEvent>, ClienteCriadoHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

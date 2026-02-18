@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
-using GBastos.Casa_dos_Farelos.Domain.Events.Compras;
+﻿using GBastos.Casa_dos_Farelos.Domain.Events.Compras;
+using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
@@ -29,7 +29,7 @@ public sealed class IntegrationEventMapping : IIntegrationEventMapper
 
         return new CompraCriadaIntegrationEvent(
             e.CompraId,
-            e.FornecedorId,
+            e.FuncionarioId,
             e.ValorTotal,
             itens
         );

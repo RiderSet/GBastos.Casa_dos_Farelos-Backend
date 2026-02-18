@@ -30,7 +30,7 @@ public sealed class ObterCompraPorIdHandler
 
         return new CompraDto(
             compra.Id,
-            compra.FornecedorId,
+            compra.FuncionarioId,
             compra.ValorTotal,
             compra.Itens.Select(i => new CompraItemDto(
                 i.ProdutoId,

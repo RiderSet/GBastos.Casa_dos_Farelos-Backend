@@ -1,4 +1,6 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+
+namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePF : Cliente
 {
@@ -96,5 +98,34 @@ public sealed class ClientePF : Cliente
         var dig2 = CalcularDigito(cpf[..9] + dig1, peso2);
 
         return cpf.EndsWith($"{dig1}{dig2}");
+    }
+
+    public override void ValidateInvariants()
+    {
+        if (string.IsNullOrWhiteSpace(Nome))
+            throw new DomainException("Nome é obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(Email))
+            throw new DomainException("Email é obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(CPF))
+            throw new DomainException("CPF é obrigatório.");
+
+        if (!CpfValido(CPF))
+            throw new DomainException("CPF inválido.");
+
+        if (DtNascimento == default)
+            throw new DomainException("Data de nascimento obrigatória.");
+
+        var hoje = DateTime.UtcNow.Date;
+
+        if (DtNascimento > hoje)
+            throw new DomainException("Data de nascimento futura inválida.");
+
+        var idade = hoje.Year - DtNascimento.Year;
+        if (DtNascimento > hoje.AddYears(-idade)) idade--;
+
+        if (idade < 0 || idade > 130)
+            throw new DomainException("Data de nascimento inválida.");
     }
 }

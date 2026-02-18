@@ -54,7 +54,7 @@ public class CompraRepository : ICompraRepository
             .Where(c => c.Id == id)
             .Select(c => new CompraDto(
                 c.Id,
-                c.FornecedorId,
+                c.FuncionarioId,
                 c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
@@ -88,7 +88,7 @@ public class CompraRepository : ICompraRepository
         var compras = await query
             .Select(c => new CompraDto(
                 c.Id,
-                c.FornecedorId,
+                c.FuncionarioId,
                 c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)
@@ -118,7 +118,7 @@ public class CompraRepository : ICompraRepository
         var query = _db.Compras.AsNoTracking().AsQueryable();
 
         // Filtra pelo funcionário
-        query = query.Where(c => c.FornecedorId == funcionarioId);
+        query = query.Where(c => c.FuncionarioId == funcionarioId);
 
         if (inicio.HasValue)
             query = query.Where(c => c.DataCompra >= inicio.Value);
@@ -128,7 +128,7 @@ public class CompraRepository : ICompraRepository
         var compras = await query
             .Select(c => new CompraDto(
                 c.Id,
-                c.FornecedorId,
+                c.FuncionarioId,
                 c.ValorTotal,
                 _db.ItensCompra
                     .Where(i => i.CompraId == c.Id)

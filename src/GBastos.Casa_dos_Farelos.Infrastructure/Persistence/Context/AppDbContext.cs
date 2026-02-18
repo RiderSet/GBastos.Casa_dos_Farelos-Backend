@@ -47,15 +47,6 @@ public class AppDbContext : DbContext, IAppDbContext
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
         => base.SaveChangesAsync(ct);
 
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //{
-    //    if (_domainEventsInterceptor is not null)
-    //        optionsBuilder.AddInterceptors(_domainEventsInterceptor);
-
-    //    if (_outboxInterceptor is not null)
-    //        optionsBuilder.AddInterceptors(_outboxInterceptor);
-    //}
-
     // ================= OnModelCreating =================
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

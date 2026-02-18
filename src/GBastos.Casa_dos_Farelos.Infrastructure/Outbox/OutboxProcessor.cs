@@ -1,5 +1,6 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,21 +28,35 @@ public sealed class OutboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Outbox Processor iniciado");
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            try
+            using var scope = _provider.CreateScope();
+
+            var repo = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+            var resolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
+
+            var messages = await repo.GetPendingAsync(20, stoppingToken);
+
+            foreach (var msg in messages)
             {
-                await ProcessMessages(stoppingToken);
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro geral no OutboxProcessor");
+                try
+                {
+                    await IntegrationEventDispatcher.DispatchAsync(
+                        scope.ServiceProvider,
+                        resolver,
+                        msg.Payload,
+                        msg.Type,
+                        stoppingToken);
+
+                    await repo.MarkAsProcessedAsync(msg.Id, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    await repo.MarkAsFailedAsync(msg.Id, ex.Message, stoppingToken);
+                }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            await Task.Delay(1500, stoppingToken);
         }
     }
 

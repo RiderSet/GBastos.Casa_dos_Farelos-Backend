@@ -135,8 +135,8 @@ public static class RelatorioEndpoints
             .Where(c => c.Itens.Any(i => i.ProdutoId == produtoId))
             .Select(c => new
             {
-                c.FornecedorId,
-                c.Fornecedor.Nome
+                c.FuncionarioId,
+                c.Funcionario.Nome
             })
             .Distinct()
             .ToListAsync();

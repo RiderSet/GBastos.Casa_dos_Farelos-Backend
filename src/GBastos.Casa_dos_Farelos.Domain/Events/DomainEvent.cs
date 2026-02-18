@@ -1,16 +1,9 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
-using MediatR;
+﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Events;
 
-public abstract class DomainEvent : IDomainEvent, INotification
+public abstract record DomainEvent : IDomainEvent
 {
-    public Guid Id { get; }
-    public DateTime OccurredOnUtc { get; }
-
-    protected DomainEvent()
-    {
-        Id = Guid.NewGuid();
-        OccurredOnUtc = DateTime.UtcNow;
-    }
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOnUtc { get; init; } = DateTime.UtcNow;
 }

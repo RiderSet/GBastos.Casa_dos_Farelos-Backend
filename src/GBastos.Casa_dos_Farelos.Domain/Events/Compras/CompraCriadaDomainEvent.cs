@@ -1,10 +1,10 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
+﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Events.Compras;
 
 public sealed record CompraCriadaDomainEvent(
     Guid CompraId,
-    Guid FornecedorId,
+    Guid FuncionarioId,
     decimal ValorTotal,
     List<CompraItemSnapshot> Itens
 ) : IDomainEvent

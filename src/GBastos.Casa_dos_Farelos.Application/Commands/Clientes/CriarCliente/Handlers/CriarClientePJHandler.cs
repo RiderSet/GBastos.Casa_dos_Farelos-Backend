@@ -21,6 +21,7 @@ public sealed class CriarClientePJHandler : IRequestHandler<CriarClientePJComman
         var dto = request.ClientePJ;
 
         var cliente = ClientePJ.CriarClientePJ(
+            dto.RazaoSocial,
             dto.NomeFantasia,
             dto.Telefone,
             dto.Email,
@@ -28,7 +29,7 @@ public sealed class CriarClientePJHandler : IRequestHandler<CriarClientePJComman
             dto.Contato
         );
 
-        await _repo.AdicionarClientePJAsync(cliente, ct).ConfigureAwait(false);
+        await _repo.AddAsync(cliente, ct).ConfigureAwait(false);
 
         return cliente.Id;
     }

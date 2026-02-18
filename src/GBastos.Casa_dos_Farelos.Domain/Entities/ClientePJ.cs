@@ -1,4 +1,6 @@
-﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+
+namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public sealed class ClientePJ : Cliente
 {
@@ -29,7 +31,7 @@ public sealed class ClientePJ : Cliente
         string cnpj,
         string contato)
     {
-        return new ClientePJ(razaoSocial, telefone, email, nomeFantasia, cnpj, contato);
+        return new ClientePJ(razaoSocial, nomeFantasia, telefone, email, cnpj, contato);
     }
 
     public void AtualizarClientePJ(
@@ -85,5 +87,27 @@ public sealed class ClientePJ : Cliente
         var dig2 = CalcularDigito(cnpj[..12] + dig1, peso2);
 
         return cnpj.EndsWith($"{dig1}{dig2}");
+    }
+
+    public override void ValidateInvariants()
+    {
+        if (string.IsNullOrWhiteSpace(RazaoSocial))
+            throw new DomainException("Razão social é obrigatória.");
+
+        if (string.IsNullOrWhiteSpace(NomeFantasia))
+            throw new DomainException("Nome fantasia é obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(CNPJ))
+            throw new DomainException("CNPJ é obrigatório.");
+
+        if (!CnpjValido(CNPJ))
+            throw new DomainException("CNPJ inválido.");
+
+        if (CNPJ.Length != 14)
+            throw new DomainException("CNPJ deve conter 14 dígitos.");
+
+        // opcional: garantir que não ficou com lixo
+        if (CNPJ.Any(c => !char.IsDigit(c)))
+            throw new DomainException("CNPJ deve conter apenas números.");
     }
 }

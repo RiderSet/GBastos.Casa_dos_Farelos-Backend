@@ -31,7 +31,7 @@ public sealed class ObterCompraPorIdQueryHandler
 
         return new CompraDto(
             compra.Id,
-            compra.FornecedorId,
+            compra.FuncionarioId,
             compra.ValorTotal,
             itensDto
         );

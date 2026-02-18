@@ -1,15 +1,17 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Events;
+﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Common;
 
 public abstract class BaseEntity
 {
-    public Guid Id { get; protected set; } = Guid.NewGuid();
+    public Guid Id { get; protected set; } 
 
-    private readonly List<DomainEvent> _domainEvents = new();
-    public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents;
+    private readonly List<IDomainEvent> _domainEvents = new();
 
-    protected void AddDomainEvent(DomainEvent domainEvent)
+    public IReadOnlyCollection<IDomainEvent> DomainEvents
+        => _domainEvents.AsReadOnly();
+
+    public void AddDomainEvent(IDomainEvent domainEvent)
         => _domainEvents.Add(domainEvent);
 
     public void ClearDomainEvents()

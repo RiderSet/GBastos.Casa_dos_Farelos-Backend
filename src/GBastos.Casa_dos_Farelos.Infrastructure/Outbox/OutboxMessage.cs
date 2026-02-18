@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
-using GBastos.Casa_dos_Farelos.Domain.Common;
+﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;

@@ -1,11 +1,11 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
 using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
-using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
 
-public sealed class ClienteCriadoHandler : INotificationHandler<ClienteCriadoEvent>
+public sealed class ClienteCriadoHandler
+    : IIntegrationEventHandler<ClienteCriadoEvent>
 {
     private readonly IClienteRepository _clienteRepository;
 
@@ -14,7 +14,7 @@ public sealed class ClienteCriadoHandler : INotificationHandler<ClienteCriadoEve
         _clienteRepository = clienteRepository;
     }
 
-    public async Task Handle(ClienteCriadoEvent notification, CancellationToken ct)
+    public async Task HandleAsync(ClienteCriadoEvent notification, CancellationToken ct)
     {
         Cliente cliente;
 
@@ -25,18 +25,18 @@ public sealed class ClienteCriadoHandler : INotificationHandler<ClienteCriadoEve
                 notification.Telefone,
                 notification.Email,
                 notification.Documento,
-                DateTime.UtcNow.AddYears(-18) // exemplo mínimo — ideal vir no evento
+                DateTime.UtcNow.AddYears(-18)
             );
         }
         else if (notification.Tipo == "PJ")
         {
             cliente = ClientePJ.CriarClientePJ(
-                notification.Nome,          // Razão social
+                notification.Nome,
                 notification.Telefone,
                 notification.Email,
-                notification.Nome,          // Nome fantasia (ajuste depois no evento real)
+                notification.Nome,
                 notification.Documento,
-                notification.Nome           // contato
+                notification.Nome
             );
         }
         else

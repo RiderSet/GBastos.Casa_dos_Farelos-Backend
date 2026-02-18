@@ -12,7 +12,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Configuration
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.FornecedorId).IsRequired();
+            builder.Property(x => x.FuncionarioId).IsRequired();
             builder.Property(x => x.DataCompra).IsRequired();
 
             builder.Ignore(x => x.ValorTotal);

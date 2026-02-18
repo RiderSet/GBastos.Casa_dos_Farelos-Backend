@@ -36,7 +36,7 @@ public sealed class ObterComprasHandler
                 Id = x.Id,
                 DataCompra = x.DataCompra,
                 Total = x.ValorTotal, // ← domínio calcula
-                FornecedorId = x.FornecedorId
+                FornecedorId = x.FuncionarioId
             })
             .ToListAsync(cancellationToken);
     }

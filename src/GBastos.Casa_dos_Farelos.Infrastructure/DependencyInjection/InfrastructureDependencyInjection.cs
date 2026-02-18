@@ -1,6 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Security;
-using GBastos.Casa_dos_Farelos.Domain.Abstractions;
 using GBastos.Casa_dos_Farelos.Infrastructure.Caching;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
@@ -9,7 +8,6 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
 using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
-using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
 using GBastos.Casa_dos_Farelos.Shared.Events.Compras;
 using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
@@ -45,8 +43,6 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IClientePJRepository, ClientePJRepository>();
             services.AddScoped<IVendaSaveRepository, VendaSaveRepository>();
             services.AddScoped<IVendaReadRepository, VendaReadRepository>();
-            //  services.AddScoped<IIntegrationEvent, IntegrationEvent>();
-            services.AddTransient<IIntegrationEventHandler<ClienteCriadoIntegrationEvent>, ClienteCriadoHandler>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
@@ -59,15 +55,19 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddSingleton<IEventBus, InMemoryEventBus>();
             services.AddHostedService<OutboxProcessor>();
 
-            services.AddScoped<PublishDomainEventsInterceptor>();
-           // services.AddScoped<OutboxSaveChangesInterceptor>();
+            services.AddScoped<IOutboxRepository, OutboxRepository>();
+            services.AddSingleton<IIntegrationEventTypeResolver, IntegrationEventTypeResolver>();
 
-            //services.AddSingleton<OutboxSaveChangesInterceptor>();
-            //services.AddDbContext<AppDbContext>((sp, options) =>
-            //{
-            //    options.UseSqlServer(connectionString);
-            //    options.AddInterceptors(sp.GetRequiredService<OutboxSaveChangesInterceptor>());
-            //});
+            // registra todos handlers automaticamente
+            services.Scan(scan => scan
+                .FromApplicationDependencies()
+                .AddClasses(c => c.AssignableTo(typeof(IIntegrationEventHandler<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            services.AddHostedService<OutboxProcessor>();
+
+            services.AddScoped<PublishDomainEventsInterceptor>();
 
             services.Scan(scan => scan
                 .FromApplicationDependencies()
@@ -85,9 +85,6 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IRelatorioVendasQueryService, RelatorioVendasQueryService>();
 
             // ------------------ CACHE ------------------
-            //services.AddMemoryCache();
-            //services.AddScoped<ICacheService, MemoryCacheService>();
-
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = configuration.GetSection("Redis:Connection").Value;

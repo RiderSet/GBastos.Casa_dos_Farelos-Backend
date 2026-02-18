@@ -26,7 +26,7 @@ public class CompraCriadaEventHandler : INotificationHandler<CompraCriadaDomainE
 
         var compraDto = new CompraDto(
             notification.CompraId,
-            notification.FornecedorId,
+            notification.FuncionarioId,
             notification.ValorTotal,
             itensDto
         );
@@ -35,7 +35,7 @@ public class CompraCriadaEventHandler : INotificationHandler<CompraCriadaDomainE
 
         var integrationEvent = new CompraCriadaIntegrationEvent(
             notification.CompraId,
-            notification.FornecedorId,
+            notification.FuncionarioId,
             notification.ValorTotal,
             itensDto
         );
