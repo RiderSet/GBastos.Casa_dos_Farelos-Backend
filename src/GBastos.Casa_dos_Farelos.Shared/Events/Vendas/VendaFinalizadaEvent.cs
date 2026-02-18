@@ -15,4 +15,6 @@ public sealed record VendaFinalizadaEvent(
     public Guid Id => throw new NotImplementedException();
     public string EventType => throw new NotImplementedException();
     public int Version => throw new NotImplementedException();
+
+    public DateTime OccurredOnUtc => throw new NotImplementedException();
 }

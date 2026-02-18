@@ -2,15 +2,37 @@
 
 namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
-public sealed record PedidoCriadoIntegrationEvent(
-    Guid Id,
-    Guid PedidoId,
-    Guid ClienteId,
-    decimal Total,
-    DateTime OccurredOnUtc
-) : IIntegrationEvent
+/// <summary>
+/// Classe base para todos os eventos de integração (IntegrationEvent)
+/// </summary>
+public abstract class IntegrationEvent : IIntegrationEvent
 {
-    public string EventType => throw new NotImplementedException();
+    /// <summary>
+    /// Identificador único do evento
+    /// </summary>
+    public Guid Id { get; }
 
-    public int Version => throw new NotImplementedException();
+    /// <summary>
+    /// Momento em que o evento ocorreu (UTC)
+    /// </summary>
+    public DateTime OccurredOnUtc { get; }
+
+    /// <summary>
+    /// Nome do tipo do evento
+    /// </summary>
+    public string EventType => GetType().Name;
+
+    /// <summary>
+    /// Versão do evento (para compatibilidade futura)
+    /// </summary>
+    public int Version { get; } = 1;
+
+    /// <summary>
+    /// Construtor base inicializa Id e OccurredOnUtc
+    /// </summary>
+    protected IntegrationEvent()
+    {
+        Id = Guid.NewGuid();
+        OccurredOnUtc = DateTime.UtcNow;
+    }
 }

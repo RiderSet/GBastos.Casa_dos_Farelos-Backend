@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Abstractions;
+﻿using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using MediatR;
 

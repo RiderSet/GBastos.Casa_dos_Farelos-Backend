@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
-using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using System.Text.Json;
 

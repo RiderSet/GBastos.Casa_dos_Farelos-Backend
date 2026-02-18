@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using System.Reflection;
 
 namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;

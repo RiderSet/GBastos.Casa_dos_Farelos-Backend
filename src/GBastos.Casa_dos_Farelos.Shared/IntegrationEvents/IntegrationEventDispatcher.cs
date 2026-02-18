@@ -1,38 +1,40 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
-using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
-using GBastos.Casa_dos_Farelos.Shared.Events.Vendas;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 
-public sealed class IntegrationEventDispatcher
+public static class IntegrationEventDispatcher
 {
-    private readonly Dictionary<string, Func<string, IServiceProvider, CancellationToken, Task>> _routes;
-
-    public IntegrationEventDispatcher()
-    {
-        _routes = new()
-        {
-            [typeof(ClienteCriadoEvent).Name] = Dispatch<ClienteCriadoEvent>,
-            [typeof(VendaFinalizadaEvent).Name] = Dispatch<VendaFinalizadaEvent>
-        };
-    }
-
-    private static async Task Dispatch<T>(
+    public static async Task DispatchAsync(
+        IServiceProvider provider,
+        IIntegrationEventTypeResolver typeResolver, 
         string payload,
-        IServiceProvider sp,
+        string eventType,
         CancellationToken ct)
-        where T : class, IIntegrationEvent
     {
-        var evt = JsonSerializer.Deserialize<T>(payload)!;
-        var handlers = sp.GetServices<IIntegrationEventHandler<T>>();
+        if (string.IsNullOrWhiteSpace(payload))
+            throw new ArgumentNullException(nameof(payload));
+        if (string.IsNullOrWhiteSpace(eventType))
+            throw new ArgumentNullException(nameof(eventType));
+        if (typeResolver == null)
+            throw new ArgumentNullException(nameof(typeResolver));
+
+        // Resolve o tipo do evento via resolver
+        var type = typeResolver.Resolve(eventType);
+
+        // Desserializa o payload
+        var evt = (IIntegrationEvent)JsonSerializer.Deserialize(payload, type)!;
+
+        // Resolve os handlers registrados
+        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(type);
+        var handlers = provider.GetServices(handlerType);
 
         foreach (var handler in handlers)
-            await handler.HandleAsync(evt, ct);
+        {
+            var method = handlerType.GetMethod(nameof(IIntegrationEventHandler<IIntegrationEvent>.HandleAsync))!;
+            await (Task)method.Invoke(handler, new object[] { evt, ct })!;
+        }
     }
-
-    public Task DispatchAsync(string eventName, string payload, IServiceProvider sp, CancellationToken ct)
-        => _routes[eventName](payload, sp, ct);
 }

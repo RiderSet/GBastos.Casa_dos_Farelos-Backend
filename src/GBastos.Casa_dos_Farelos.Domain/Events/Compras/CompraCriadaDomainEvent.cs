@@ -11,24 +11,3 @@ public sealed record CompraCriadaDomainEvent(
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }
-
-//public sealed class CompraCriadaDomainEvent : INotification
-//{
-//    public Guid CompraId { get; }
-//    public Guid FornecedorId { get; }
-//    public decimal Total { get; }
-//    public IReadOnlyCollection<CompraItemSnapshot> Itens { get; }
-//    public decimal TotalCompra { get; set; }
-
-//    public CompraCriadaDomainEvent(
-//        Guid compraId,
-//        Guid fornecedorId,
-//        decimal ValorTotal,
-//        IReadOnlyCollection<CompraItemSnapshot> itens)
-//    {
-//        CompraId = compraId;
-//        FornecedorId = fornecedorId;
-//        Total = TotalCompra;
-//        Itens = itens;
-//    }
-//}

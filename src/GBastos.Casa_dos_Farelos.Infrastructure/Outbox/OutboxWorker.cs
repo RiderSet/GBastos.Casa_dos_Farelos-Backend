@@ -1,5 +1,6 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Dispatchers;
-using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
+using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,8 +33,12 @@ public sealed class OutboxWorker : BackgroundService
             {
                 try
                 {
+                    var typeResolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
+
+                    // despacha o evento
                     await IntegrationEventDispatcher.DispatchAsync(
                         scope.ServiceProvider,
+                        typeResolver,
                         msg.Payload,
                         msg.EventName,
                         stoppingToken);
