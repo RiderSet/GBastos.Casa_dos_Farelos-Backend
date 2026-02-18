@@ -23,6 +23,10 @@ public sealed class OutboxWorker : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+            // resolve o resolver do DI uma vez
+            var typeResolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
+
+            // pega mensagens pendentes
             var messages = await db.OutboxMessages
                 .Where(x => x.ProcessedOnUtc == null)
                 .OrderBy(x => x.OccurredOnUtc)
@@ -33,9 +37,7 @@ public sealed class OutboxWorker : BackgroundService
             {
                 try
                 {
-                    var typeResolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
-
-                    // despacha o evento
+                    // despacha o evento automaticamente
                     await IntegrationEventDispatcher.DispatchAsync(
                         scope.ServiceProvider,
                         typeResolver,
@@ -51,8 +53,10 @@ public sealed class OutboxWorker : BackgroundService
                 }
             }
 
+            // salva alterações no banco
             await db.SaveChangesAsync(stoppingToken);
 
+            // pequena pausa antes da próxima verificação
             await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
         }
     }
