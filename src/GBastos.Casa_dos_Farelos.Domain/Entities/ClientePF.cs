@@ -1,11 +1,11 @@
 ﻿namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public sealed class ClientePF : Pessoa
+public sealed class ClientePF : Cliente
 {
     public string CPF { get; private set; } = string.Empty;
     public DateTime DtNascimento { get; private set; }
 
-    private ClientePF() { } // EF
+    private ClientePF() { }
 
     private ClientePF(
         string nome,
@@ -15,8 +15,8 @@ public sealed class ClientePF : Pessoa
         DateTime dtNascimento)
         : base(nome, telefone, email)
     {
-        DefinirDocumento(cpf);
-        DefinirNascimento(dtNascimento);
+        SetDocumento(cpf);
+        SetDtNascimento(dtNascimento);
     }
 
     public static ClientePF CriarClientePF(
@@ -37,13 +37,13 @@ public sealed class ClientePF : Pessoa
         DateTime dtNascimento)
     {
         Atualizar(nome, telefone, email);
-        DefinirDocumento(cpf);
-        DefinirNascimento(dtNascimento);
+        SetDocumento(cpf);
+        SetDtNascimento(dtNascimento);
     }
 
     // ===================== REGRAS =====================
 
-    private void DefinirDocumento(string cpf)
+    private void SetDocumento(string cpf)
     {
         cpf = NormalizarCpf(cpf);
 
@@ -53,15 +53,20 @@ public sealed class ClientePF : Pessoa
         CPF = cpf;
     }
 
-    private void DefinirNascimento(DateTime dtNascimento)
+    private void SetDtNascimento(DateTime dtNascimento)
     {
         if (dtNascimento == default)
             throw new ArgumentException("Data de nascimento obrigatória", nameof(dtNascimento));
 
-        if (dtNascimento > DateTime.UtcNow.Date)
-            throw new ArgumentException("Data de nascimento inválida", nameof(dtNascimento));
+        var hoje = DateTime.UtcNow.Date;
 
-        if (DateTime.UtcNow.Year - dtNascimento.Year > 130)
+        if (dtNascimento.Date > hoje)
+            throw new ArgumentException("Data futura inválida", nameof(dtNascimento));
+
+        var idade = hoje.Year - dtNascimento.Year;
+        if (dtNascimento.Date > hoje.AddYears(-idade)) idade--;
+
+        if (idade < 0 || idade > 130)
             throw new ArgumentException("Data de nascimento inválida", nameof(dtNascimento));
 
         DtNascimento = dtNascimento.Date;
@@ -70,26 +75,26 @@ public sealed class ClientePF : Pessoa
     // ===================== HELPERS =====================
 
     private static string NormalizarCpf(string cpf)
-        => new string(cpf.Where(char.IsDigit).ToArray());
+        => new string((cpf ?? "").Where(char.IsDigit).ToArray());
 
     private static bool CpfValido(string cpf)
     {
         if (cpf.Length != 11) return false;
         if (cpf.All(c => c == cpf[0])) return false;
 
-        int[] mult1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-        int[] mult2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+        int CalcularDigito(string str, int[] peso)
+        {
+            var soma = str.Select((c, i) => (c - '0') * peso[i]).Sum();
+            var resto = soma % 11;
+            return resto < 2 ? 0 : 11 - resto;
+        }
 
-        var temp = cpf[..9];
-        int soma = temp.Select((t, i) => (t - '0') * mult1[i]).Sum();
-        int resto = soma % 11;
-        resto = resto < 2 ? 0 : 11 - resto;
+        int[] peso1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
+        int[] peso2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
 
-        temp += resto;
-        soma = temp.Select((t, i) => (t - '0') * mult2[i]).Sum();
-        resto = soma % 11;
-        resto = resto < 2 ? 0 : 11 - resto;
+        var dig1 = CalcularDigito(cpf[..9], peso1);
+        var dig2 = CalcularDigito(cpf[..9] + dig1, peso2);
 
-        return cpf.EndsWith(resto.ToString());
+        return cpf.EndsWith($"{dig1}{dig2}");
     }
 }

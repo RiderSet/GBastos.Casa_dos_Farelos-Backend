@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Abstraction;
+using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
 
 namespace GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
@@ -6,9 +7,18 @@ namespace GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
 public sealed class ClienteCriadoEnviarEmailHandler
     : IIntegrationEventHandler<ClienteCriadoEvent>
 {
-    public Task HandleAsync(ClienteCriadoEvent evt, CancellationToken ct)
+    private readonly IEmailService _emailService;
+
+    public ClienteCriadoEnviarEmailHandler(IEmailService emailService)
     {
-        Console.WriteLine($"Enviar email para cliente {evt.Name}");
-        return Task.CompletedTask;
+        _emailService = emailService;
+    }
+
+    public async Task HandleAsync(ClienteCriadoEvent evt, CancellationToken ct)
+    {
+        await _emailService.EnviarBoasVindasAsync(
+            evt.Email,
+            evt.Nome,
+            ct);
     }
 }

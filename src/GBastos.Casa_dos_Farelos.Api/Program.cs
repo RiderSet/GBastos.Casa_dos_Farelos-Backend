@@ -4,14 +4,13 @@ using GBastos.Casa_dos_Farelos.Application.Common;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
 using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
-using GBastos.Casa_dos_Farelos.Infrastructure.Extensioons;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
-using GBastos.Casa_dos_Farelos.Infrastructure.Security;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -19,16 +18,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
-using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ======== Configuração ========
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
+// ======== Scan de IDataMigration ========
 builder.Services.Scan(scan => scan
     .FromAssemblies(Assembly.GetExecutingAssembly())
     .AddClasses(c => c.AssignableTo<IDataMigration>())
@@ -37,56 +37,30 @@ builder.Services.Scan(scan => scan
 
 // ======== Validators & MediatR ========
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
-
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
 });
-
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-//builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
+// ======== Interceptors ========
 builder.Services.AddScoped<PublishDomainEventsInterceptor>();
+builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
 
 // ======== Database ========
+// Usa connection string do appsettings e mantém interceptors
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
-    var env = builder.Environment;
     var config = sp.GetRequiredService<IConfiguration>();
- // var interceptor = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
-    var interceptor = sp.GetRequiredService<PublishDomainEventsInterceptor>();
+    var interceptor1 = sp.GetRequiredService<PublishDomainEventsInterceptor>();
+    var interceptor2 = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
 
-    string connectionString;
-
-    if (env.IsDevelopment())
-    {
-     // connectionString = config.GetConnectionString("SqlServer")!;
-        connectionString = config.GetConnectionString("Conn")!;
-    }
-    else
-    {
-        var dbPassword = SecretProvider.GetRequired("sql_password");
-
-        connectionString =
-            $"Server=sqlserver,1433;" +
-            $"Database=CasaDosFarelos;" +
-            $"User Id=sa;" +
-            $"Password={dbPassword};" +
-            $"TrustServerCertificate=True";
-    }
+    var connectionString = config.GetConnectionString("SqlServer")!;
 
     options.UseSqlServer(connectionString, sql =>
-        sql.EnableRetryOnFailure(
-            maxRetryCount: 10,
-            maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorNumbersToAdd: null))
-        .AddInterceptors(interceptor)
-        .AddInterceptors(sp.GetRequiredService<OutboxSaveChangesInterceptor>()); ;
-
-    options.AddInterceptors(
-        sp.GetRequiredService<PublishDomainEventsInterceptor>(),
-        sp.GetRequiredService<OutboxSaveChangesInterceptor>());
+            sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(5), null))
+           .AddInterceptors(interceptor1, interceptor2);
 });
 
 // ======== Swagger ========
@@ -112,11 +86,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // ======== JWT ========
 var jwt = builder.Configuration.GetSection("Jwt");
-
-var keyValue = jwt["Key"]
-    ?? throw new InvalidOperationException("Jwt:Key não configurado");
-
-var key = Encoding.UTF8.GetBytes(keyValue);
+var key = Encoding.UTF8.GetBytes(jwt["Key"] ?? throw new InvalidOperationException("Jwt:Key não configurado"));
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -153,14 +123,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Casa dos Farelos API v1"));
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    await db.Database.MigrateAsync();
-    await DistributedDbInitializer.EnsureMigratedAsync(scope.ServiceProvider, CancellationToken.None);
-}
-
 app.UseExceptionHandler(handler =>
 {
     handler.Run(async context =>
@@ -185,69 +147,17 @@ app.UseAuthorization();
 // ======== Endpoints ========
 app.MapEndpoints();
 
-// ======== Database Seed ========
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    var retry = 0;
-    while (retry < 10)
-    {
-        try
-        {
-            await db.Database.MigrateAsync();
-            break;
-        }
-        catch
-        {
-            retry++;
-            await Task.Delay(5000);
-        }
-    }
-    await UserSeed.SeedAsync(db);
-}
-
+// ======== Database Seed & Migrations ========
 await using (var scope = app.Services.CreateAsyncScope())
 {
     var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<AppDbContext>();
 
-    await DataMigrationRunner.RunAsync(services, CancellationToken.None); // EF migrations
-    await DatabaseSeeder.RunAsync(services, CancellationToken.None);          // seeds base
-    await DataMigrationRunner.RunAsync(services, CancellationToken.None);     // ⭐ novo sistema
+    await db.Database.MigrateAsync();                   // aplica migrations
+    await UserSeed.SeedAsync(db);                       // seeds de usuários
+    await DataMigrationRunner.RunAsync(services, CancellationToken.None);
+    await DatabaseSeeder.RunAsync(services, CancellationToken.None);
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    await DataMigrationRunner.RunAsync(scope.ServiceProvider, CancellationToken.None);
-}
-
-await EnsureDatabaseAsync(app);
-
+// ======== Run App ========
 app.Run();
-
-// --============================================================
-static async Task EnsureDatabaseAsync(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILoggerFactory>()
-                         .CreateLogger("DatabaseStartup");
-
-    try
-    {
-        var db = services.GetRequiredService<AppDbContext>();
-
-        logger.LogInformation("Aplicando migrations...");
-        await db.Database.MigrateAsync();
-
-        logger.LogInformation("Executando seeds...");
-        await DatabaseSeeder.RunAsync(services, CancellationToken.None);
-
-        logger.LogInformation("Banco pronto 🚀");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Erro ao preparar banco");
-        throw;
-    }
-}

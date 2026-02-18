@@ -9,6 +9,7 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.ReadModels.Relatorios;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;
 using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
+using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
 using GBastos.Casa_dos_Farelos.Shared.Events.Compras;
 using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
@@ -30,6 +31,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             //services.AddDbContext<AppDbContext>(options =>
             //    options.UseSqlServer(configuration.GetConnectionString("Conn")));
 
+
             // ------------------ DAPPER ------------------
             services.AddScoped<IDbConnection>(_ =>
                 new SqlConnection(configuration.GetConnectionString("Conn")));
@@ -43,7 +45,8 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
             services.AddScoped<IClientePJRepository, ClientePJRepository>();
             services.AddScoped<IVendaSaveRepository, VendaSaveRepository>();
             services.AddScoped<IVendaReadRepository, VendaReadRepository>();
-            services.AddScoped<IIntegrationEvent, IntegrationEvent>();
+            //  services.AddScoped<IIntegrationEvent, IntegrationEvent>();
+            services.AddTransient<IIntegrationEventHandler<ClienteCriadoIntegrationEvent>, ClienteCriadoHandler>();
             services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
             services.AddScoped<ICompraRepository, CompraRepository>();
             services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();

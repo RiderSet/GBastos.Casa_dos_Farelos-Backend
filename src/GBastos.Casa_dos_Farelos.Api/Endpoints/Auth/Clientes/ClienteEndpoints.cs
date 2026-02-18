@@ -108,7 +108,7 @@ public static class ClienteEndpoints
         IUnitOfWork uow,
         CancellationToken ct)
     {
-        var cliente = ClientePJ.CriarClientePJ(request.NomeFantasia, request.Telefone, request.Email, request.CNPJ, request.Contato);
+        var cliente = ClientePJ.CriarClientePJ(request.RazaoSocial, request.NomeFantasia, request.Telefone, request.Email, request.CNPJ, request.Contato);
         await repo.AddAsync(cliente, ct);
         await uow.SaveChangesAsync(ct);
         return Results.Created($"/api/clientes/{cliente.Id}", cliente.Id);
@@ -126,6 +126,7 @@ public static class ClienteEndpoints
         if (cliente is null) return Results.NotFound();
 
         cliente.Atualizar(request.Nome, request.Telefone, request.Email);
+
         await uow.SaveChangesAsync(ct);
         return Results.NoContent();
     }

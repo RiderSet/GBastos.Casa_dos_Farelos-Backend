@@ -4,7 +4,9 @@ namespace GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
 
 public sealed record ClienteCriadoEvent(
     Guid ClienteId,
-    string Name,
+    string Nome,
     string Documento,
-    string Tipo
+    string Tipo,
+    string Email,
+    string Telefone
 ) : BaseIntegrationEvent;
