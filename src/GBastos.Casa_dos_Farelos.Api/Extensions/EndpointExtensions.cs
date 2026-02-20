@@ -1,5 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Api.Endpoints.Auth;
-using GBastos.Casa_dos_Farelos.Api.Endpoints.Clientes;
+using GBastos.Casa_dos_Farelos.Api.Endpoints.Auth.Clientes;
 using GBastos.Casa_dos_Farelos.Api.Endpoints.Compras;
 using GBastos.Casa_dos_Farelos.Api.Endpoints.Produtos;
 using GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios;

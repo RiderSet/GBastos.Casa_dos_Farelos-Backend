@@ -15,11 +15,11 @@ public class CompraMapping : IEntityTypeConfiguration<Compra>
         builder.Property(c => c.DataCompra)
                .IsRequired();
 
-        builder.Property(c => c.FornecedorId)
+        builder.Property(c => c.FuncionarioId)
                .IsRequired();
 
-        //   builder.Ignore(c => c.TotalCompra);
-        builder.Ignore(c => c.TotalCompra);
+        //   builder.Ignore(c => c.ValorTotal);
+        builder.Ignore(c => c.ValorTotal);
 
         builder.Metadata
             .FindNavigation(nameof(Compra.Itens))!
@@ -32,7 +32,7 @@ public class CompraMapping : IEntityTypeConfiguration<Compra>
 
         builder.HasOne<Fornecedor>()
                .WithMany()
-               .HasForeignKey(c => c.FornecedorId)
+               .HasForeignKey(c => c.FuncionarioId)
                .OnDelete(DeleteBehavior.Cascade);
     }
 }

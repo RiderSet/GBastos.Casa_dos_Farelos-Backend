@@ -1,4 +1,6 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,17 +14,30 @@ public sealed class OutboxProcessor : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OutboxProcessor> _logger;
+<<<<<<< HEAD
 
     public OutboxProcessor(
         IServiceScopeFactory scopeFactory,
         ILogger<OutboxProcessor> logger)
     {
         _scopeFactory = scopeFactory;
+=======
+    private readonly IServiceProvider _provider;
+
+    public OutboxProcessor(
+        IServiceScopeFactory scopeFactory,
+        IServiceProvider provider,
+        ILogger<OutboxProcessor> logger)
+    {
+        _scopeFactory = scopeFactory;
+        _provider = provider;
+>>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+<<<<<<< HEAD
         _logger.LogInformation("Outbox Processor iniciado");
 
         while (!stoppingToken.IsCancellationRequested)
@@ -37,6 +52,37 @@ public sealed class OutboxProcessor : BackgroundService
             }
 
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+=======
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            using var scope = _provider.CreateScope();
+
+            var repo = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
+            var resolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
+
+            var messages = await repo.GetPendingAsync(20, stoppingToken);
+
+            foreach (var msg in messages)
+            {
+                try
+                {
+                    await IntegrationEventDispatcher.DispatchAsync(
+                        scope.ServiceProvider,
+                        resolver,
+                        msg.Payload,
+                        msg.Type,
+                        stoppingToken);
+
+                    await repo.MarkAsProcessedAsync(msg.Id, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    await repo.MarkAsFailedAsync(msg.Id, ex.Message, stoppingToken);
+                }
+            }
+
+            await Task.Delay(1500, stoppingToken);
+>>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         }
     }
 
@@ -46,11 +92,20 @@ public sealed class OutboxProcessor : BackgroundService
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+<<<<<<< HEAD
 
         var messages = await db.OutboxMessages
             .Where(x => x.ProcessedOn == null)
             .OrderBy(x => x.OccurredOnUtc)
             .Take(20)
+=======
+        var resolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
+
+        var messages = await db.OutboxMessages
+            .Where(x => x.ProcessedOnUtc == null)
+            .OrderBy(x => x.OccurredOnUtc)
+            .Take(50)
+>>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
             .ToListAsync(ct);
 
         if (messages.Count == 0)
@@ -62,6 +117,7 @@ public sealed class OutboxProcessor : BackgroundService
         {
             try
             {
+<<<<<<< HEAD
                 var type = Type.GetType(message.Type);
                 if (type == null)
                 {
@@ -87,6 +143,31 @@ public sealed class OutboxProcessor : BackgroundService
             }
         }
 
+=======
+                var type = resolver.Resolve(message.EventName);
+                if (type == null)
+                {
+                    message.MarkFailed($"Tipo não mapeado: {message.EventName}");
+                    continue;
+                }
+
+                var integrationEvent = JsonSerializer.Deserialize(message.Payload, type);
+                if (integrationEvent == null)
+                {
+                    message.MarkFailed("Falha ao desserializar evento");
+                    continue;
+                }
+
+                await bus.Publish(integrationEvent, ct);
+                message.MarkProcessed();
+            }
+            catch (Exception ex)
+            {
+                message.MarkFailed(ex.Message);
+                _logger.LogError(ex, "Erro ao processar mensagem {Id}", message.Id);
+            }
+        }
+>>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         await db.SaveChangesAsync(ct);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
+using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Commands.Produtos.CriarProduto.Handlers;

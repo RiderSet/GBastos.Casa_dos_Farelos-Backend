@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
-using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,7 +32,7 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Repositories
                 FuncionarioId = venda.FuncionarioId,
                 Total = venda.TotalVenda,
 
-                Itens = venda.Itens.Select(i => new ItemVendaDto
+                Itens = venda.Itens.Select(i => new VendaItemDto
                 {
                     ProdutoId = i.ProdutoId,
                     Produto = i.DescricaoProduto,

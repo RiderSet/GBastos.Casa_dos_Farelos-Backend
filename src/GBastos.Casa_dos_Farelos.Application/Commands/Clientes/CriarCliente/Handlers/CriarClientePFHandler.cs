@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
+using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.Application.Commands.Clientes.CriarCliente.Handlers;
@@ -7,27 +8,26 @@ namespace GBastos.Casa_dos_Farelos.Application.Commands.Clientes.CriarCliente.Ha
 public sealed class CriarClientePFHandler : IRequestHandler<CriarClientePFCommand, Guid>
 {
     private readonly IClientePFRepository _repo;
+    private readonly IUnitOfWork _uow;
 
-    public CriarClientePFHandler(IClientePFRepository repo)
+    public CriarClientePFHandler(IClientePFRepository repo, IUnitOfWork uow)
     {
         _repo = repo;
+        _uow = uow;
     }
 
     public async Task<Guid> Handle(CriarClientePFCommand request, CancellationToken ct)
     {
-        var existe = await _repo.ObterPorCpfAsync(request.CPF, ct);
-        if (existe != null)
-            throw new Exception("CPF já cadastrado.");
-
-        var cliente = new ClientePF(
+        var cliente = ClientePF.CriarClientePF(
             request.Nome,
-            request.CPF,
             request.Telefone,
             request.Email,
-            request.DataNascimento
+            request.Cpf,
+        request.dtNascimento
         );
 
         await _repo.AddAsync(cliente, ct);
+        await _uow.SaveChangesAsync(ct);
 
         return cliente.Id;
     }

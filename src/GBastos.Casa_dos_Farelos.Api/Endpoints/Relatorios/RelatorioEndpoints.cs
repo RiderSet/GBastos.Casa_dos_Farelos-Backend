@@ -1,4 +1,6 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Application.Queries.Relatorios;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios;
@@ -15,6 +17,9 @@ public static class RelatorioEndpoints
         group.MapGet("/compras-total", TotalCompras);
         group.MapGet("/faturamento", FaturamentoPeriodo);
         group.MapGet("/produtos-mais-vendidos", ProdutosMaisVendidos);
+        group.MapGet("/funcionarios-mais-vendem", FuncionariosMaisVendem);
+        group.MapGet("/total-comprado-cliente/{clienteId:guid}", TotalCompradoCliente);
+        group.MapGet("/fornecedores-por-produto/{produtoId:guid}", FornecedoresPorProduto);
 
         return app;
     }
@@ -39,8 +44,6 @@ public static class RelatorioEndpoints
         return Results.Ok(new { total });
     }
 
-    // ================= TOTAL COMPRAS =================
-
     private static async Task<IResult> TotalCompras(
         DateTime? inicio,
         DateTime? fim,
@@ -54,37 +57,12 @@ public static class RelatorioEndpoints
         if (fim.HasValue)
             query = query.Where(c => c.DataCompra <= fim.Value);
 
-        var total = await query.SumAsync(c => c.TotalCompra);
+        var total = await query
+            .SelectMany(c => c.Itens)
+            .SumAsync(i => i.SubTotal);
 
         return Results.Ok(new { total });
     }
-
-    // ================= FATURAMENTO =================
-
-    private static async Task<IResult> FaturamentoPeriodo(
-        DateTime inicio,
-        DateTime fim,
-        AppDbContext db)
-    {
-        var totalVendas = await db.Vendas
-            .Where(v => v.DataVenda >= inicio && v.DataVenda <= fim)
-            .SumAsync(v => v.TotalVenda);
-
-        var totalCompras = await db.Compras
-            .Where(c => c.DataCompra >= inicio && c.DataCompra <= fim)
-            .SumAsync(c => c.TotalCompra);
-
-        var lucro = totalVendas - totalCompras;
-
-        return Results.Ok(new
-        {
-            totalVendas,
-            totalCompras,
-            lucro
-        });
-    }
-
-    // ================= PRODUTOS MAIS VENDIDOS =================
 
     private static async Task<IResult> ProdutosMaisVendidos(AppDbContext db)
     {
@@ -103,4 +81,76 @@ public static class RelatorioEndpoints
 
         return Results.Ok(produtos);
     }
+
+    private static async Task<IResult> FuncionariosMaisVendem(AppDbContext db)
+    {
+        var funcionarios = await db.Vendas
+            .AsNoTracking()
+            .GroupBy(v => new { v.FuncionarioId, v.Funcionario.Nome })
+            .Select(g => new
+            {
+                FuncionarioId = g.Key.FuncionarioId,
+                Nome = g.Key.Nome,
+                QuantidadeVendas = g.Count(),
+                TotalVendido = g.Sum(v => v.TotalVenda)
+            })
+            .OrderByDescending(x => x.TotalVendido)
+            .Take(10)
+            .ToListAsync();
+
+        return Results.Ok(funcionarios);
+    }
+
+    private static async Task<IResult> TotalCompradoCliente(
+    Guid clienteId,
+    DateTime? inicio,
+    DateTime? fim,
+    AppDbContext db)
+    {
+        var query = db.Vendas
+            .AsNoTracking()
+            .Where(v => v.ClienteId == clienteId);
+
+        if (inicio.HasValue)
+            query = query.Where(v => v.DataVenda >= inicio.Value);
+
+        if (fim.HasValue)
+            query = query.Where(v => v.DataVenda <= fim.Value);
+
+        var total = await query.SumAsync(v => v.TotalVenda);
+
+        return Results.Ok(new
+        {
+            clienteId,
+            total
+        });
+    }
+
+    private static async Task<IResult> FornecedoresPorProduto(
+    Guid produtoId,
+    AppDbContext db)
+    {
+        var fornecedores = await db.Compras
+            .AsNoTracking()
+            .Where(c => c.Itens.Any(i => i.ProdutoId == produtoId))
+            .Select(c => new
+            {
+                c.FuncionarioId,
+                c.Funcionario.Nome
+            })
+            .Distinct()
+            .ToListAsync();
+
+        return Results.Ok(fornecedores);
+    }
+
+    private static async Task<IResult> FaturamentoPeriodo(
+    DateTime inicio,
+    DateTime fim,
+    IMediator mediator)
+    {
+        var result = await mediator.Send(new FaturamentoPeriodoQuery(inicio, fim));
+        return Results.Ok(result);
+    }
+
 }

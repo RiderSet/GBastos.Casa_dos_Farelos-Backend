@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Commands\Compras\EventHandlers\**" />
+    <EmbeddedResource Remove="Commands\Compras\EventHandlers\**" />
+    <None Remove="Commands\Compras\EventHandlers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="FluentValidation" Version="12.1.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
@@ -20,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Domain\GBastos.Casa_dos_Farelos.Domain.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Shared\GBastos.Casa_dos_Farelos.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Dapper;
-using GBastos.Casa_dos_Farelos.Application.Dtos;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Vendas;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -24,21 +25,21 @@ public sealed class ObterVendasQueryHandler
             _config.GetConnectionString("DefaultConn"));
 
         var sql = @"
-SELECT
-    v.Id,
-    v.Data,
-    p.Nome AS Cliente,
-    i.ProdutoId,
-    i.DescricaoProduto,
-    i.Quantidade,
-    i.PrecoUnitario
-FROM Vendas v
-LEFT JOIN Pessoas p ON p.Id = v.ClienteId
-LEFT JOIN ItemVendas i ON i.VendaId = v.Id
-WHERE (@DataInicio IS NULL OR v.Data >= @DataInicio)
-  AND (@DataFim IS NULL OR v.Data <= @DataFim)
-ORDER BY v.Data DESC
-";
+                SELECT
+                    v.Id,
+                    v.Data,
+                    p.Nome AS Cliente,
+                    i.ProdutoId,
+                    i.DescricaoProduto,
+                    i.Quantidade,
+                    i.PrecoUnitario
+                FROM Vendas v
+                LEFT JOIN Pessoas p ON p.Id = v.ClienteId
+                LEFT JOIN ItemVendas i ON i.VendaId = v.Id
+                WHERE (@DataInicio IS NULL OR v.Data >= @DataInicio)
+                  AND (@DataFim IS NULL OR v.Data <= @DataFim)
+                ORDER BY v.Data DESC
+                ";
 
         var lookup = new Dictionary<Guid, VendaDto>();
 

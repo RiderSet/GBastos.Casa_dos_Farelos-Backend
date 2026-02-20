@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+﻿using GBastos.Casa_dos_Farelos.Domain.Dtos;
+using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
@@ -18,6 +19,9 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
             group.MapGet("/ranking-compras", RankingCompras);
             group.MapGet("/ranking-vendas", RankingVendas);
             group.MapGet("/ranking-pedidos", RankingPedidos);
+        //  group.MapGet("/total-comprado-cliente", TotalCompradoCliente);
+            group.MapGet("/funcionarios-mais-vendem", FuncionariosMaisVendem);
+        //  group.MapGet("/fornecedores-por-produtos", FornecedoresPorProduto);
 
             return app;
         }
@@ -31,7 +35,7 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
                 .Select(i => new
                 {
                     i.ProdutoId,
-                    Produto = i.Produto.Nome,
+                    Produto = i.NomeProduto,
                     i.Quantidade,
                     i.CustoUnitario,
                     i.SubTotal
@@ -90,10 +94,10 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
         private static async Task<IResult> RankingCompras(AppDbContext db)
         {
             var ranking = await db.ItensCompra
-                .GroupBy(i => new { i.ProdutoId, i.Produto.Nome })
+                .GroupBy(i => new { i.ProdutoId, i.NomeProduto }) // 🔥 CORRIGIDO
                 .Select(g => new
                 {
-                    Produto = g.Key.Nome,
+                    Produto = g.Key.NomeProduto, // 🔥 CORRIGIDO
                     QuantidadeComprada = g.Sum(x => x.Quantidade),
                     TotalGasto = g.Sum(x => x.SubTotal)
                 })
@@ -130,6 +134,25 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
                     Receita = g.Sum(x => x.SubTotal)
                 })
                 .OrderByDescending(x => x.QuantidadeVendida)
+                .ToListAsync();
+
+            return Results.Ok(ranking);
+        }
+
+        private static async Task<IResult> FuncionariosMaisVendem(AppDbContext db)
+        {
+            var ranking = await db.Vendas
+                .AsNoTracking()
+                .GroupBy(v => new { v.FuncionarioId, v.Funcionario.Nome })
+                .Select(g => new FuncionarioMaisVendeuDto
+                {
+                    FuncionarioId = g.Key.FuncionarioId,
+                    Nome = g.Key.Nome,
+                    TotalVendido = g.Sum(x => x.TotalVenda),
+                    QuantidadeVendas = g.Count()
+                })
+                .OrderByDescending(x => x.TotalVendido)
+                .Take(10)
                 .ToListAsync();
 
             return Results.Ok(ranking);

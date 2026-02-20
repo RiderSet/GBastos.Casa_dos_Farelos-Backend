@@ -12,7 +12,7 @@ public sealed class CriarClientePFValidator : AbstractValidator<CriarClientePFCo
             .MinimumLength(3)
             .WithMessage("O nome deve ter no mínimo 3 caracteres.");
 
-        RuleFor(x => x.CPF)
+        RuleFor(x => x.Cpf)
             .NotEmpty()
             .Length(11)
             .WithMessage("CPF deve conter 11 dígitos.");
@@ -22,8 +22,8 @@ public sealed class CriarClientePFValidator : AbstractValidator<CriarClientePFCo
             .EmailAddress()
             .WithMessage("E-mail inválido.");
 
-        RuleFor(x => x.DataNascimento)
-            .LessThan(DateTime.Today)
-            .WithMessage("Data de nascimento inválida.");
+        //RuleFor(x => x.DtNascimento)
+        //    .LessThan(DateTime.Today)
+        //    .WithMessage("Data de nascimento inválida.");
     }
 }

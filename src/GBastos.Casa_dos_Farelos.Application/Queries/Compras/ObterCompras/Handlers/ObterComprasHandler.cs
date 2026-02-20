@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Application.Dtos;
-using GBastos.Casa_dos_Farelos.Application.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
+using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,8 +35,8 @@ public sealed class ObterComprasHandler
             {
                 Id = x.Id,
                 DataCompra = x.DataCompra,
-                Total = x.TotalCompra, // ← domínio calcula
-                FornecedorId = x.FornecedorId
+                Total = x.ValorTotal, // ← domínio calcula
+                FornecedorId = x.FuncionarioId
             })
             .ToListAsync(cancellationToken);
     }

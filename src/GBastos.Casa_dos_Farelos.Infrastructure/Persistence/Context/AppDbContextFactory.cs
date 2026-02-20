@@ -4,25 +4,20 @@ using Microsoft.Extensions.Configuration;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
-public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        var basePath = Directory.GetCurrentDirectory();
-
-        // aponta para API
-        var apiPath = Path.Combine(basePath, "../GBastos.Casa_dos_Farelos.Api");
+        var path = Directory.GetCurrentDirectory();
 
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(apiPath)
+            .SetBasePath(path)
             .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile("appsettings.Development.json", optional: true)
             .Build();
 
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-
-        var connectionString = configuration.GetConnectionString("Conn");
-
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("Conn"));
 
         return new AppDbContext(optionsBuilder.Options);
     }

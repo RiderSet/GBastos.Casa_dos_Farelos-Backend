@@ -10,6 +10,8 @@ public interface IClientePFRepository
 
     Task<ClientePF?> ObterPorIdAsync(Guid id, CancellationToken ct);
     Task<ClientePF?> ObterPorCpfAsync(string cpf, CancellationToken ct);
-    Task<List<ClientePF>> ListarAsync(CancellationToken ct);
+
     Task<bool> ExistePorCpfAsync(string cpf, CancellationToken ct);
+
+   // Task<List<ClienteListDto>> ListarAsync(CancellationToken ct);
 }

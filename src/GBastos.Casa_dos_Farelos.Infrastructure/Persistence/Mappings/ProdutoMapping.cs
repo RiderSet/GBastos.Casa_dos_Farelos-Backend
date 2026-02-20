@@ -23,6 +23,10 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Mappings
                    .WithMany(c => c.Produtos)
                    .HasForeignKey(p => p.CategoriaId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(p => p.RowVersion)
+                .IsRowVersion()
+                .IsConcurrencyToken();
         }
     }
 }

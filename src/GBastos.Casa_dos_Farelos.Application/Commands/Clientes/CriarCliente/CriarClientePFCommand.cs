@@ -2,10 +2,10 @@
 
 namespace GBastos.Casa_dos_Farelos.Application.Commands.Clientes.CriarCliente;
 
-public sealed record CriarClientePFCommand(
+public record CriarClientePFCommand(
     string Nome,
-    string CPF,
     string Telefone,
     string Email,
-    DateTime DataNascimento
+    string Cpf,
+        DateTime dtNascimento
 ) : IRequest<Guid>;
