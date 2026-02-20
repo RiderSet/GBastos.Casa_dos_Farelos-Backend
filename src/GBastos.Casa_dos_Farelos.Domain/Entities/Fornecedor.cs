@@ -68,4 +68,19 @@ public class Fornecedor : Pessoa
 
     private static string SomenteNumeros(string valor)
         => new string(valor.Where(char.IsDigit).ToArray());
+
+    protected override void ValidateInvariants()
+    {
+        if (string.IsNullOrWhiteSpace(Nome))
+            throw new DomainException("Nome do fornecedor é obrigatório");
+
+        if (string.IsNullOrWhiteSpace(Telefone))
+            throw new DomainException("Telefone do fornecedor é obrigatório");
+
+        if (string.IsNullOrWhiteSpace(Email))
+            throw new DomainException("Email do fornecedor é obrigatório");
+
+        if (string.IsNullOrWhiteSpace(CNPJ) || CNPJ.Length != 14)
+            throw new DomainException("CNPJ do fornecedor é inválido");
+    }
 }

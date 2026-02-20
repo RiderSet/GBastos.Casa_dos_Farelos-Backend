@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
+﻿using GBastos.Casa_dos_Farelos.Domain.Dtos;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 
 namespace GBastos.Casa_dos_Farelos.Application.Commands.Compras.IntegrationsEvents;
@@ -21,7 +22,7 @@ public sealed class CompraCriadaIntegrationEvent : IIntegrationEvent
     public Guid CompraId { get; }
     public Guid FornecedorId { get; }
     public decimal Total { get; }
-    public List<CompraItemDto> Itens { get; }
+    public List<ItemCompraDto> Itens { get; }
 
     // Propriedades do IIntegrationEvent
     public string EventType => Name;
@@ -36,6 +37,6 @@ public sealed class CompraCriadaIntegrationEvent : IIntegrationEvent
         CompraId = compraId;
         FornecedorId = fornecedorId;
         Total = total;
-        Itens = itens ?? new List<CompraItemDto>();
+        Itens = itens ?? new List<ItemCompraDto>();
     }
 }

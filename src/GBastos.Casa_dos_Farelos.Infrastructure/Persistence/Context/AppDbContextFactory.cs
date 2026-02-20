@@ -4,29 +4,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
-public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        // caminho da API (onde está o appsettings.json)
-        var basePath = Path.GetFullPath(
-            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "GBastos.Casa_dos_Farelos.Api"));
+        var path = Directory.GetCurrentDirectory();
 
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(basePath)
+            .SetBasePath(path)
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile("appsettings.Development.json", optional: true)
             .Build();
 
-        var connectionString = configuration.GetConnectionString("Conn");
-
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException("Connection string 'Conn' não encontrada.");
-
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        optionsBuilder.UseSqlServer(connectionString);
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("Conn"));
 
-        // SEM interceptors no design-time
         return new AppDbContext(optionsBuilder.Options);
     }
 }

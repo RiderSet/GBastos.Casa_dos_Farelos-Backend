@@ -10,21 +10,19 @@ namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Configuration
         {
             builder.ToTable("Compras");
 
-            builder.HasKey(x => x.Id);
+            builder.HasKey(c => c.Id);
 
-            builder.Property(x => x.FuncionarioId).IsRequired();
-            builder.Property(x => x.DataCompra).IsRequired();
+            builder.Property(c => c.DataCompra)
+                   .IsRequired();
 
-            builder.Ignore(x => x.ValorTotal);
-
-            builder.Metadata
-                   .FindNavigation(nameof(Compra.Itens))!
-                   .SetPropertyAccessMode(PropertyAccessMode.Field);
-
+            // RELAÇÃO CORRETA DO AGGREGATE
             builder.HasMany<ItemCompra>("_itens")
-                   .WithOne()
+                   .WithOne(i => i.Compra)
                    .HasForeignKey(i => i.CompraId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            // Diz ao EF que a coleção pública não é mapeada diretamente
+            builder.Ignore(c => c.Itens);
         }
     }
 }

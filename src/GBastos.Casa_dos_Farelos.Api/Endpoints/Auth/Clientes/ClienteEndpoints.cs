@@ -26,31 +26,19 @@ public static class ClienteEndpoints
 
     // ================= LISTAR TODOS =================
     private static async Task<IResult> ListarTodos(
-        IClientePFRepository repoPF,
-        IClientePJRepository repoPJ,
+        IClienteRepository repo,
         CancellationToken ct)
     {
-        var clientesPF = await repoPF.ListarAsync(ct);
-        var clientesPJ = await repoPJ.ListarAsync(ct);
+        var clientes = await repo.ListarAsync(ct);
 
-        var resultado = clientesPF.Select(c => new ClienteListDto(
+        var resultado = clientes.Select(c => new ClienteListDto(
             Id: c.Id,
             Nome: c.Nome,
             Telefone: c.Telefone,
             Email: c.Email,
-            Tipo: "PF",
-            Documento: c.CPF
+            Tipo: c.Tipo,
+            Documento: c.Documento
         )).ToList();
-
-        resultado.AddRange(clientesPJ.Select(c => new ClienteListDto(
-            Id: c.Id,
-            Nome: c.NomeFantasia,
-            Telefone: c.Telefone,
-            Email: c.Email,
-            Tipo: "PJ",
-            Documento: c.CNPJ,
-            Contato: c.Contato
-        )));
 
         return Results.Ok(resultado);
     }

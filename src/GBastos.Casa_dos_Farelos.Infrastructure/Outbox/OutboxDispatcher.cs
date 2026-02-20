@@ -1,5 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
+using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -10,9 +11,9 @@ public sealed class OutboxDispatcher : IOutboxDispatcher
 {
     private readonly AppDbContext _db;
     private readonly IPublisher _publisher;
-    private readonly IEventTypeResolver _resolver;
+    private readonly IIntegrationEventTypeResolver _resolver;
 
-    public OutboxDispatcher(AppDbContext db, IPublisher publisher, IEventTypeResolver resolver)
+    public OutboxDispatcher(AppDbContext db, IPublisher publisher, IIntegrationEventTypeResolver resolver)
     {
         _db = db;
         _publisher = publisher;

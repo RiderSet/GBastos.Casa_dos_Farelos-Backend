@@ -100,7 +100,7 @@ public sealed class ClientePF : Cliente
         return cpf.EndsWith($"{dig1}{dig2}");
     }
 
-    public override void ValidateInvariants()
+    protected override void ValidateInvariants()
     {
         if (string.IsNullOrWhiteSpace(Nome))
             throw new DomainException("Nome é obrigatório.");

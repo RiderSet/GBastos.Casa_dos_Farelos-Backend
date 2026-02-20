@@ -17,83 +17,84 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data;
 
-namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection
+namespace GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
+
+public static class InfrastructureDependencyInjection
 {
-    public static class InfrastructureDependencyInjection
+    public static object AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddInfrastructure(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        // ------------------ DATABASE (EF Core) ------------------
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("Conn")));
+
+        // ------------------ DAPPER ------------------
+        services.AddScoped<IDbConnection>(_ =>
+            new SqlConnection(configuration.GetConnectionString("Conn")));
+
+        // ------------------ REPOSITORIES / SERVICES ------------------
+        services.AddScoped<JwtService>();
+        services.AddScoped<IVendaSaveRepository, VendaSaveRepository>();
+        services.AddScoped<IVendaReadRepository, VendaReadRepository>();
+        services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
+        services.AddScoped<ICompraRepository, CompraRepository>();
+        services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
+        services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
+        services.AddScoped<IIntegrationEventOutbox, OutboxService>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<PublishDomainEventsInterceptor>();
+
+        services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<IOutboxDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<ISeedHistoryDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
+       // services.AddScoped<IClientePFRepository, ClientePFRepository>();
+        //services.AddScoped<IClientePJRepository, ClientePJRepository>();
+        services.AddScoped<IClienteRepository, ClienteRepository>();
+        services.AddScoped<ClientePFRepository>();
+        services.AddScoped<ClientePJRepository>();
+        services.AddScoped<IProdutoRepository, ProdutoRepository>();
+
+        services.AddScoped<IVendaRepository, VendaRepository>();
+
+        // ------------------ EVENT BUS ------------------
+        services.AddSingleton<IEventBus, InMemoryEventBus>();
+        services.AddSingleton<IIntegrationEventTypeResolver, IntegrationEventTypeResolver>();
+
+        // ------------------ HOSTED SERVICES ------------------
+        services.AddHostedService<OutboxProcessor>();
+        services.AddHostedService<OutboxWorker>();
+
+        // ------------------ AUTOMATIC HANDLERS ------------------
+        services.Scan(scan => scan
+            .FromApplicationDependencies(a => a.FullName!.Contains("Casa_dos_Farelos"))
+
+            .AddClasses(c => c.AssignableTo(typeof(IEventHandler<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+            .AddClasses(c => c.AssignableTo(typeof(IIntegrationEventHandler<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+
+            .AddClasses(c => c.AssignableTo<IDataMigration>())
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+        );
+
+        // ------------------ QUERY SERVICES (RELATÓRIOS) ------------------
+        services.AddScoped<IRelatorioVendasQueryService, RelatorioVendasQueryService>();
+
+        // ------------------ CACHE ------------------
+        services.AddStackExchangeRedisCache(options =>
         {
-            // ------------------ DATABASE (EF) ------------------
-            //services.AddDbContext<AppDbContext>(options =>
-            //    options.UseSqlServer(configuration.GetConnectionString("Conn")));
+            options.Configuration = configuration.GetSection("Redis:Connection").Value;
+            options.InstanceName = "CasaDosFarelos:";
+        });
 
+        services.AddScoped<ICacheService, RedisCacheService>();
 
-            // ------------------ DAPPER ------------------
-            services.AddScoped<IDbConnection>(_ =>
-                new SqlConnection(configuration.GetConnectionString("Conn")));
-
-            // ------------------ REPOSITORIES ------------------
-
-            services.AddScoped<JwtService>();
-            services.AddScoped<IProdutoRepository, ProdutoRepository>();
-            services.AddScoped<IAppDbContext, AppDbContext>();
-            services.AddScoped<IClientePFRepository, ClientePFRepository>();
-            services.AddScoped<IClientePJRepository, ClientePJRepository>();
-            services.AddScoped<IVendaSaveRepository, VendaSaveRepository>();
-            services.AddScoped<IVendaReadRepository, VendaReadRepository>();
-            services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
-            services.AddScoped<ICompraRepository, CompraRepository>();
-            services.AddScoped<IIntegrationEventMapper, IntegrationEventMapping>();
-            services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
-            services.AddScoped<IIntegrationEventOutbox, OutboxService>();
-            services.AddHostedService<OutboxProcessor>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddHostedService<OutboxWorker>();
-
-            services.AddSingleton<IEventBus, InMemoryEventBus>();
-            services.AddHostedService<OutboxProcessor>();
-
-            services.AddScoped<IOutboxRepository, OutboxRepository>();
-            services.AddSingleton<IIntegrationEventTypeResolver, IntegrationEventTypeResolver>();
-
-            // registra todos handlers automaticamente
-            services.Scan(scan => scan
-                .FromApplicationDependencies()
-                .AddClasses(c => c.AssignableTo(typeof(IIntegrationEventHandler<>)))
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-            services.AddHostedService<OutboxProcessor>();
-
-            services.AddScoped<PublishDomainEventsInterceptor>();
-
-            services.Scan(scan => scan
-                .FromApplicationDependencies()
-                .AddClasses(c => c.AssignableTo(typeof(IEventHandler<>)))
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-            services.Scan(scan => scan
-                .FromAssemblyOf<IDataMigration>()
-                .AddClasses(c => c.AssignableTo<IDataMigration>())
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-            // ------------------ QUERY SERVICES (RELATORIOS) ------------------
-            services.AddScoped<IRelatorioVendasQueryService, RelatorioVendasQueryService>();
-
-            // ------------------ CACHE ------------------
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration.GetSection("Redis:Connection").Value;
-                options.InstanceName = "CasaDosFarelos:";
-            });
-
-            services.AddScoped<ICacheService, RedisCacheService>();
-
-            return services;
-        }
+        return services;
     }
 }

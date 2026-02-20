@@ -16,7 +16,7 @@ public sealed class ClienteCriadoEnviarEmailHandler
 
     public async Task HandleAsync(ClienteCriadoEvent evt, CancellationToken ct)
     {
-        await _emailService.EnviarBoasVindasAsync(
+        await _emailService.EnviarAsync(
             evt.Email,
             evt.Nome,
             ct);

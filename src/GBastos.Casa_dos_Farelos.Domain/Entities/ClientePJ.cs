@@ -89,7 +89,7 @@ public sealed class ClientePJ : Cliente
         return cnpj.EndsWith($"{dig1}{dig2}");
     }
 
-    public override void ValidateInvariants()
+    protected override void ValidateInvariants()
     {
         if (string.IsNullOrWhiteSpace(RazaoSocial))
             throw new DomainException("Razão social é obrigatória.");

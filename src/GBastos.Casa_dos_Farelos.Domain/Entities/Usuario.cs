@@ -3,8 +3,10 @@ using GBastos.Casa_dos_Farelos.Domain.Events.Usuarios;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class Usuario : BaseEntity
+public class Usuario : AggregateRoot
 {
+    public Guid Id { get; protected set; } = Guid.NewGuid();
+
     public string Login { get; private set; } = string.Empty;
     public string SenhaHash { get; private set; } = string.Empty;
     public string Perfil { get; private set; } = "Funcionario";
@@ -34,5 +36,14 @@ public class Usuario : BaseEntity
         Perfil = role;
 
         AddDomainEvent(new UsuarioRoleAlteradaEvent(Id, role));
+    }
+
+    protected override void ValidateInvariants()
+    {
+        if (string.IsNullOrWhiteSpace(Login))
+            throw new InvalidOperationException("Login inválido.");
+
+        if (string.IsNullOrWhiteSpace(SenhaHash))
+            throw new InvalidOperationException("SenhaHash inválido.");
     }
 }

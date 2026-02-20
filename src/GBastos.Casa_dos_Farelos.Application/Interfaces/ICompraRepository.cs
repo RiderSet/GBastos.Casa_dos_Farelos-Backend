@@ -1,5 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Dtos;
-using GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Entities;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 
 namespace GBastos.Casa_dos_Farelos.Application.Interfaces;
 

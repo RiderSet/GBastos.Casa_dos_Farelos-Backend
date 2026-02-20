@@ -35,7 +35,7 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
                 .Select(i => new
                 {
                     i.ProdutoId,
-                    Produto = i.Produto.Nome,
+                    Produto = i.NomeProduto,
                     i.Quantidade,
                     i.CustoUnitario,
                     i.SubTotal
@@ -94,10 +94,10 @@ namespace GBastos.Casa_dos_Farelos.Api.Endpoints.Relatorios
         private static async Task<IResult> RankingCompras(AppDbContext db)
         {
             var ranking = await db.ItensCompra
-                .GroupBy(i => new { i.ProdutoId, i.Produto.Nome })
+                .GroupBy(i => new { i.ProdutoId, i.NomeProduto }) // 🔥 CORRIGIDO
                 .Select(g => new
                 {
-                    Produto = g.Key.Nome,
+                    Produto = g.Key.NomeProduto, // 🔥 CORRIGIDO
                     QuantidadeComprada = g.Sum(x => x.Quantidade),
                     TotalGasto = g.Sum(x => x.SubTotal)
                 })

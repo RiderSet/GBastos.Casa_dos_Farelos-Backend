@@ -5,6 +5,8 @@ namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
 public class Compra : AggregateRoot
 {
+    public Guid Id { get; private set; }
+    public Guid FornecedorId { get; private set; }
     public DateTime DataCompra { get; private set; }
     public bool Finalizada { get; private set; }
 
@@ -12,47 +14,36 @@ public class Compra : AggregateRoot
     public Funcionario Funcionario { get; private set; } = null!;
 
     private readonly List<ItemCompra> _itens = new();
-    public IReadOnlyCollection<ItemCompra> Itens => _itens.AsReadOnly();
+    public IReadOnlyCollection<ItemCompra> Itens => _itens;
 
     public decimal ValorTotal => _itens.Sum(i => i.SubTotal);
 
     protected Compra() { }
 
-    private Compra(Guid funcionarioId)
+    private Compra(Guid fornecedorId, Guid funcionarioId)
     {
+        if (fornecedorId == Guid.Empty)
+            throw new DomainException("Fornecedor inválido.");
+
+        if (funcionarioId == Guid.Empty)
+            throw new DomainException("Funcionário inválido.");
+
         Id = Guid.NewGuid();
+        FornecedorId = fornecedorId;
         FuncionarioId = funcionarioId;
         DataCompra = DateTime.UtcNow;
         Finalizada = false;
     }
 
-    public static Compra Criar(Guid funcionarioId)
-        => new Compra(funcionarioId);
+    public static Compra Criar(Guid fornecedorId, Guid funcionarioId)
+        => new Compra(fornecedorId, funcionarioId);
 
-    public void AdicionarItem(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
+    public void AdicionarProduto(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
     {
         if (Finalizada)
             throw new DomainException("Compra já finalizada.");
 
-        if (produtoId == Guid.Empty)
-            throw new DomainException("Produto inválido.");
-
-        if (quantidade <= 0)
-            throw new DomainException("Quantidade deve ser maior que zero.");
-
-        if (custoUnitario <= 0)
-            throw new DomainException("Custo unitário deve ser maior que zero.");
-
-        var itemExistente = _itens.FirstOrDefault(i => i.ProdutoId == produtoId);
-
-        if (itemExistente is not null)
-        {
-            itemExistente.SomarQuantidade(quantidade, custoUnitario);
-            return;
-        }
-
         var item = new ItemCompra(produtoId, nomeProduto, quantidade, custoUnitario);
-
         item.DefinirCompra(Id);
 
         _itens.Add(item);
@@ -64,50 +55,43 @@ public class Compra : AggregateRoot
             throw new DomainException("Compra já finalizada.");
 
         if (!_itens.Any())
-            throw new DomainException("Não é possível finalizar uma compra sem itens.");
+            throw new DomainException("Compra deve possuir itens.");
 
-        ValidateInvariants();
+        var nomeFuncionario = Funcionario?.Nome
+    ?? throw new DomainException("Funcionário não carregado.");
 
         Finalizada = true;
 
-        AddDomainEvent(new CompraCriadaDomainEvent(
-            Id, // 🔥 CompraId
-            FuncionarioId,
-            ValorTotal,
-            _itens.Select(i => new CompraItemSnapshot(
+        // 🔥 Conciliação com estoque via evento
+        var snapshot = _itens.Select(i =>
+            new CompraItemSnapshot(
                 i.ProdutoId,
                 i.NomeProduto,
                 i.Quantidade,
                 i.CustoUnitario,
                 i.SubTotal
-            )).ToList()
+            )).ToList();
+
+        AddDomainEvent(new CompraCriadaDomainEvent(
+            Id,
+            FornecedorId,
+            FuncionarioId,
+            nomeFuncionario,
+            DataCompra,
+            ValorTotal,
+            snapshot
         ));
     }
 
-    public override void ValidateInvariants()
+    protected override void ValidateInvariants()
     {
-        if (FuncionarioId == Guid.Empty)
-            throw new DomainException("Funcionário é obrigatório.");
+        if (FornecedorId == Guid.Empty)
+            throw new DomainException("Fornecedor inválido.");
 
-        if (DataCompra == default)
-            throw new DomainException("Data da compra inválida.");
+        if (FuncionarioId == Guid.Empty)
+            throw new DomainException("Funcionário inválido.");
 
         if (Finalizada && !_itens.Any())
             throw new DomainException("Compra finalizada deve possuir itens.");
-
-        foreach (var item in _itens)
-        {
-            if (item.ProdutoId == Guid.Empty)
-                throw new DomainException("Item com produto inválido.");
-
-            if (item.Quantidade <= 0)
-                throw new DomainException("Item com quantidade inválida.");
-
-            if (item.CustoUnitario <= 0)
-                throw new DomainException("Item com custo unitário inválido.");
-        }
-
-        if (ValorTotal <= 0)
-            throw new DomainException("Valor total inválido.");
     }
 }

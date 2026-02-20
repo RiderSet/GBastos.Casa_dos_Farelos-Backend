@@ -2,7 +2,7 @@
 
 public interface IEmailService
 {
-    Task EnviarBoasVindasAsync(
+    Task EnviarAsync(
         string email,
         string nome,
         CancellationToken ct);

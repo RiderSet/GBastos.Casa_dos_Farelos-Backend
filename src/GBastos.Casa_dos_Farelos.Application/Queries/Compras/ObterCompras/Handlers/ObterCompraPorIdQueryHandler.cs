@@ -1,6 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Queries.Compras.ObterCompras;
-using GBastos.Casa_dos_Farelos.Domain.Dtos;
 using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using MediatR;
 
@@ -19,21 +18,31 @@ public sealed class ObterCompraPorIdQueryHandler
         var compra = await _repo.ObterPorIdAsync(request.Id, ct);
         if (compra is null) return null;
 
+        // Mapeia itens
         var itensDto = compra.Itens
-            .Select(i => new CompraItemDto(
-                i.ProdutoId,
-                i.NomeProduto,
-                i.Quantidade,
-                i.CustoUnitario,
-                i.SubTotal
-            ))
+            .Select(i => new ItemCompraDto
+            {
+                ProdutoId = i.ProdutoId,
+                NomeProduto = i.NomeProduto,
+                Quantidade = i.Quantidade,
+                CustoUnitario = i.CustoUnitario,
+                SubTotal = i.Quantidade * i.CustoUnitario
+            })
             .ToList();
 
-        return new CompraDto(
-            compra.Id,
-            compra.FuncionarioId,
-            compra.ValorTotal,
-            itensDto
-        );
+        // Calcula valor total
+        var valorTotal = itensDto.Sum(x => x.SubTotal);
+
+        // Retorna DTO da compra
+        return new CompraDto
+        {
+            Id = compra.Id,
+            ClienteId = compra.ClienteId,
+            FuncionarioId = compra.FuncionarioId,
+            CarrinhoId = compra.CarrinhoId,
+            DataCompra = compra.DataCompra,
+            Finalizada = compra.Finalizada,
+            Itens = itensDto
+        };
     }
 }

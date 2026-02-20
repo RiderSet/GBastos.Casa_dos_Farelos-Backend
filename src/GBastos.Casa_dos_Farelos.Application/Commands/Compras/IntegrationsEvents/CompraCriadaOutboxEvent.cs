@@ -21,18 +21,18 @@ public sealed class CompraCriadaOutboxEvent : IIntegrationEvent
     public Guid CompraId { get; }
     public Guid FornecedorId { get; }
     public decimal Total { get; }
-    public List<CompraItemDto> Itens { get; }
+    public List<ItemCompraDto> Itens { get; }
 
     // Propriedades do IIntegrationEvent
     public string EventType => EventType;
     public int Version { get; } = 1;
 
     // Construtor
-    public CompraCriadaOutboxEvent(Guid compraId, Guid fornecedorId, decimal total, List<CompraItemDto> itens)
+    public CompraCriadaOutboxEvent(Guid compraId, Guid fornecedorId, decimal total, List<ItemCompraDto> itens)
     {
         CompraId = compraId;
         FornecedorId = fornecedorId;
         Total = total;
-        Itens = itens ?? new List<CompraItemDto>();
+        Itens = itens ?? new List<ItemCompraDto>();
     }
 }

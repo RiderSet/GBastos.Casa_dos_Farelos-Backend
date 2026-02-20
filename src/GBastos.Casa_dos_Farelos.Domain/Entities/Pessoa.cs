@@ -2,14 +2,16 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public abstract class Pessoa : BaseEntity
+public abstract class Pessoa : AggregateRoot
 {
+    public Guid Id { get; protected set; } = Guid.NewGuid();
+
+    public string Telefone { get; protected set; } = null!;
     public string Nome { get; protected set; } = null!;
     public string Email { get; protected set; } = null!;
-    public string Telefone { get; private set; } = null!;
-    public DateTime DtCadastro { get; private set; }
+    public DateTime DtCadastro { get; protected set; }
 
-    protected Pessoa() { } // EF
+    protected Pessoa() { }
 
     protected Pessoa(string nome, string telefone, string email)
     {

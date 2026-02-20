@@ -1,6 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Commands.Compras.CriarCompra;
 using GBastos.Casa_dos_Farelos.Application.Queries.Compras.ObterCompras;
-using GBastos.Casa_dos_Farelos.Domain.Dtos;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Events;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
@@ -7,10 +8,13 @@ public class Produto : BaseEntity
     public string Nome { get; private set; } = string.Empty;
     public string DescricaoProduto { get; private set; } = string.Empty;
     public decimal PrecoVenda { get; private set; }
+
     public int QuantEstoque { get; private set; }
 
     public Guid CategoriaId { get; private set; }
     public Categoria Categoria { get; private set; } = null!;
+
+    public byte[] RowVersion { get; private set; } = null!;
 
     protected Produto() { } // EF
 
@@ -24,20 +28,10 @@ public class Produto : BaseEntity
         QuantEstoque = estoqueInicial;
     }
 
-    public void Atualizar(string nome, string descricao, decimal preco, Guid categoriaId, int quantEstoque)
-    {
-        AlterarNome(nome);
-        AlterarDescricao(descricao);
-        AlterarPreco(preco);
-        CategoriaId = categoriaId;
-        QuantEstoque = quantEstoque;
-    }
-
-    // ---------------- ESTOQUE ----------------
-    public void AjustarEstoque(int quantidade)
+    public void EntradaEstoque(int quantidade)
     {
         if (quantidade <= 0)
-            throw new DomainException("A quantidade de entrada deve ser maior que zero.");
+            throw new DomainException("Quantidade inválida.");
 
         checked
         {
@@ -45,21 +39,32 @@ public class Produto : BaseEntity
         }
     }
 
-    public void BaixarEstoque(int quantidade)
+    public void SaidaEstoque(int quantidade)
     {
         if (quantidade <= 0)
             throw new DomainException("Quantidade inválida.");
 
         if (QuantEstoque < quantidade)
-            throw new DomainException($"Estoque insuficiente do produto {Nome}");
+            throw new DomainException($"Estoque insuficiente para o produto {Nome}");
 
         QuantEstoque -= quantidade;
+
+        AddDomainEvent(new EstoqueBaixadoDomainEvent(
+            Id,
+            Nome,
+            quantidade
+        ));
+    }
+
+    private void AddDomainEvent(EstoqueBaixadoDomainEvent estoqueBaixadoDomainEvent)
+    {
+        throw new NotImplementedException();
     }
 
     private void AlterarNome(string nome)
     {
         if (string.IsNullOrWhiteSpace(nome))
-            throw new DomainException("Nome do produto obrigatório.");
+            throw new DomainException("Nome obrigatório.");
 
         Nome = nome.Trim();
     }
@@ -67,7 +72,7 @@ public class Produto : BaseEntity
     private void AlterarDescricao(string descricao)
     {
         if (string.IsNullOrWhiteSpace(descricao))
-            throw new DomainException("Descrição do produto é obrigatória.");
+            throw new DomainException("Descrição obrigatória.");
 
         DescricaoProduto = descricao.Trim();
     }
@@ -78,5 +83,26 @@ public class Produto : BaseEntity
             throw new DomainException("Preço inválido.");
 
         PrecoVenda = preco;
+    }
+
+    public void Atualizar(string nome, string descricao, decimal preco, Guid categoriaId, int quantEstoque)
+    {
+        if (categoriaId == Guid.Empty)
+            throw new DomainException("Categoria inválida.");
+
+        if (quantEstoque < 0)
+            throw new DomainException("Estoque não pode ser negativo.");
+
+        AlterarNome(nome);
+        AlterarDescricao(descricao);
+        AlterarPreco(preco);
+
+        CategoriaId = categoriaId;
+        QuantEstoque = quantEstoque;
+    }
+
+    public void BaixarEstoque(int quantEstoque)
+    {
+        SaidaEstoque(quantEstoque);
     }
 }

@@ -2,41 +2,36 @@
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
-public class ItemCompra
+public class ItemCompra : BaseEntity
 {
+    public Guid CompraId { get; private set; }
     public Guid ProdutoId { get; private set; }
-    public Produto Produto { get; private set; } = null!;
-
-    public string NomeProduto { get; private set; } = string.Empty;
+    public string NomeProduto { get; private set; } = null!;
     public int Quantidade { get; private set; }
     public decimal CustoUnitario { get; private set; }
-
-    public Guid CompraId { get; private set; }
-    public Compra Compra { get; private set; } = null!;
-
     public decimal SubTotal => Quantidade * CustoUnitario;
 
     protected ItemCompra() { }
 
     public ItemCompra(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)
     {
+        if (produtoId == Guid.Empty)
+            throw new DomainException("Produto inválido.");
+
+        if (quantidade <= 0)
+            throw new DomainException("Quantidade inválida.");
+
+        if (custoUnitario <= 0)
+            throw new DomainException("Custo inválido.");
+
         ProdutoId = produtoId;
         NomeProduto = nomeProduto;
         Quantidade = quantidade;
         CustoUnitario = custoUnitario;
     }
 
-    internal void DefinirCompra(Guid compraId)
+    public void DefinirCompra(Guid compraId)
     {
-        if (compraId == Guid.Empty)
-            throw new DomainException("Compra inválida.");
-
         CompraId = compraId;
-    }
-
-    public void SomarQuantidade(int quantidade, decimal novoCusto)
-    {
-        Quantidade += quantidade;
-        CustoUnitario = novoCusto;
     }
 }

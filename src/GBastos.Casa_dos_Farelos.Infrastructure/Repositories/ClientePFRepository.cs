@@ -14,12 +14,14 @@ public sealed class ClientePFRepository : IClientePFRepository
         _db = db;
     }
 
+    private IQueryable<ClientePF> ClientesPF => _db.Pessoas.OfType<ClientePF>();
+
     public async Task AddAsync(ClientePF cliente, CancellationToken ct)
     {
         if (cliente == null)
             throw new ArgumentNullException(nameof(cliente));
 
-        await _db.ClientesPF.AddAsync(cliente, ct);
+        await _db.Pessoas.AddAsync(cliente, ct);
     }
 
     public Task UpdateAsync(ClientePF cliente, CancellationToken ct)
@@ -27,7 +29,7 @@ public sealed class ClientePFRepository : IClientePFRepository
         if (cliente == null)
             throw new ArgumentNullException(nameof(cliente));
 
-        _db.ClientesPF.Update(cliente);
+        _db.Pessoas.Update(cliente);
         return Task.CompletedTask;
     }
 
@@ -36,35 +38,46 @@ public sealed class ClientePFRepository : IClientePFRepository
         if (cliente == null)
             throw new ArgumentNullException(nameof(cliente));
 
-        _db.ClientesPF.Remove(cliente);
+        _db.Pessoas.Remove(cliente);
         return Task.CompletedTask;
     }
 
     public async Task<ClientePF?> ObterPorIdAsync(Guid id, CancellationToken ct)
     {
-        return await _db.ClientesPF
+        return await ClientesPF
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
     public async Task<ClientePF?> ObterPorCpfAsync(string cpf, CancellationToken ct)
     {
-        return await _db.ClientesPF
+        return await ClientesPF
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.CPF == cpf, ct);
     }
 
-    public async Task<List<ClientePF>> ListarAsync(CancellationToken ct)
-    {
-        return await _db.ClientesPF
-            .AsNoTracking()
-            .OrderBy(c => c.Nome)
-            .ToListAsync(ct);
-    }
-
     public async Task<bool> ExistePorCpfAsync(string cpf, CancellationToken ct)
     {
-        return await _db.ClientesPF
+        return await ClientesPF
             .AnyAsync(c => c.CPF == cpf, ct);
     }
+
+    //async Task<List<ClienteListDto>> ListarAsync(CancellationToken ct)
+    //{
+    //    return await ClientesPF
+    //        .Select(c => new ClienteListDto(
+    //            c.Id,
+    //            c.Nome,
+    //            c.Telefone,
+    //            c.Email,
+    //            "PF",
+    //            c.CPF,
+    //            null))
+    //        .ToListAsync(ct);
+    //}
+
+    //Task<List<ClienteListDto>> IClientePFRepository.ListarAsync(CancellationToken ct)
+    //{
+    //    return ListarAsync(ct);
+    //}
 }

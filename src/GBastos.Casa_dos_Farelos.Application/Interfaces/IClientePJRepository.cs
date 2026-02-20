@@ -1,5 +1,4 @@
-﻿
-using GBastos.Casa_dos_Farelos.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.Domain.Entities;
 
 namespace GBastos.Casa_dos_Farelos.Application.Interfaces;
 
@@ -10,8 +9,8 @@ public interface IClientePJRepository
     Task RemoveAsync(ClientePJ cliente, CancellationToken ct);
 
     Task<ClientePJ?> ObterPorIdAsync(Guid id, CancellationToken ct);
-    Task<ClientePJ?> ObterPorCpfAsync(string cpf, CancellationToken ct);
-    Task<List<ClientePJ>> ListarAsync(CancellationToken ct);
-    Task<bool> ExistePorCpfAsync(string cpf, CancellationToken ct);
+    Task<ClientePJ?> ObterPorCnpjAsync(string cnpj, CancellationToken ct);
+
+    Task<bool> ExistePorCnpjAsync(string cnpj, CancellationToken ct);
 }
 

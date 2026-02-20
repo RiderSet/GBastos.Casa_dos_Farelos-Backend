@@ -1,18 +1,37 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GBastos.Casa_dos_Farelos.Domain.Interfaces;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Common;
 
-public abstract class AggregateRoot : BaseEntity
+public abstract class AggregateRoot : IHasDomainEvents
 {
-    [Timestamp]
-    public byte[] Version { get; private set; } = Array.Empty<byte>();
-    public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; protected set; }
+    private readonly List<IDomainEvent> _domainEvents = new();
 
-    protected void MarkAsUpdated()
+    [NotMapped]
+    public IReadOnlyCollection<IDomainEvent> DomainEvents
+        => new ReadOnlyCollection<IDomainEvent>(_domainEvents);
+
+    protected void Raise(IDomainEvent domainEvent)
+        => _domainEvents.Add(domainEvent);
+
+    protected void AddDomainEvent(IDomainEvent domainEvent)
     {
-        UpdatedAt = DateTime.UtcNow;
+        if (domainEvent is null)
+            throw new ArgumentNullException(nameof(domainEvent));
+
+        _domainEvents.Add(domainEvent);
     }
 
-    public abstract void ValidateInvariants();
+    public void RemoveDomainEvent(IDomainEvent domainEvent)
+    {
+        if (domainEvent is null) return;
+
+        _domainEvents.Remove(domainEvent);
+    }
+
+    public void ClearDomainEvents()
+        => _domainEvents.Clear();
+
+    protected abstract void ValidateInvariants();
 }

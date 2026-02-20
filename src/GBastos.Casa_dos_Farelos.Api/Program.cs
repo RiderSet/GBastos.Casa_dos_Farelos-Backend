@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using GBastos.Casa_dos_Farelos.Api.Extensions;
+using GBastos.Casa_dos_Farelos.Application.Abstraction;
 using GBastos.Casa_dos_Farelos.Application.Common;
 using GBastos.Casa_dos_Farelos.Application.Interfaces;
-using GBastos.Casa_dos_Farelos.Application.Queries.Clientes.Handlers;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
 using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
@@ -12,7 +12,9 @@ using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Interceptors;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
-using GBastos.Casa_dos_Farelos.Shared.Events.Clientes;
+using GBastos.Casa_dos_Farelos.Infrastructure.Repositories;
+using GBastos.Casa_dos_Farelos.Infrastructure.Services;
+using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -33,37 +35,50 @@ builder.Configuration
 
 // ======== Scan de IDataMigration ========
 builder.Services.Scan(scan => scan
-    .FromAssemblies(Assembly.GetExecutingAssembly())
-    .AddClasses(c => c.AssignableTo<IDataMigration>())
-    .AsImplementedInterfaces()
-    .WithScopedLifetime());
+    .FromAssemblies(
+    typeof(IIntegrationEvent).Assembly,
+    typeof(IEventHandler<>).Assembly,
+    typeof(AppDbContext).Assembly
+).AddClasses(c => c.AssignableTo<IDataMigration>()).AsImplementedInterfaces().WithScopedLifetime());
 
 // ======== Validators & MediatR ========
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
+
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
 });
+
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // ======== Interceptors ========
+builder.Services.AddScoped<DomainValidationInterceptor>();
 builder.Services.AddScoped<PublishDomainEventsInterceptor>();
 builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
 
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // ======== Database ========
-// Usa connection string do appsettings e mantém interceptors
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
-    var interceptor1 = sp.GetRequiredService<PublishDomainEventsInterceptor>();
-    var interceptor2 = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
+
+    var validation = sp.GetRequiredService<DomainValidationInterceptor>();
+    var publish = sp.GetRequiredService<PublishDomainEventsInterceptor>();
+    var outbox = sp.GetRequiredService<OutboxSaveChangesInterceptor>();
 
     var connectionString = config.GetConnectionString("SqlServer")!;
 
     options.UseSqlServer(connectionString, sql =>
-            sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(5), null))
-           .AddInterceptors(interceptor1, interceptor2);
+        sql.EnableRetryOnFailure(10, TimeSpan.FromSeconds(5), null));
+
+    // ORDEM CORRETA (IMPORTANTÍSSIMO)
+    options.AddInterceptors(
+        validation,
+        publish,
+        outbox
+    );
 });
 
 // ======== Swagger ========
