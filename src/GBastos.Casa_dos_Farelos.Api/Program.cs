@@ -3,6 +3,7 @@ using GBastos.Casa_dos_Farelos.Api.Extensions;
 using GBastos.Casa_dos_Farelos.Application.Common;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
+using GBastos.Casa_dos_Farelos.Infrastructure.Messaging;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed;
@@ -23,7 +24,6 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // ======== Validators & MediatR ========
-//builder.Services.AddValidatorsFromAssemblyContaining<CriarClientePFValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
 builder.Services.AddMediatR(cfg =>
@@ -34,6 +34,15 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
+
+builder.Services.AddSingleton(async sp =>
+{
+    return await RabbitMqConnection.CreateAsync(
+        builder.Configuration["Rabbit:Host"]!,
+        builder.Configuration["Rabbit:User"]!,
+        builder.Configuration["Rabbit:Pass"]!
+    );
+});
 
 //Console.WriteLine("CONNECTION STRING = " + builder.Configuration.GetConnectionString("Conn"));
 // ======== Database ========

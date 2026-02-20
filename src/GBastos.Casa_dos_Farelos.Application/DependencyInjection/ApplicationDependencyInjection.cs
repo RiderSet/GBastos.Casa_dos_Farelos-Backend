@@ -27,7 +27,6 @@ namespace GBastos.Casa_dos_Farelos.Application.DependencyInjection
             // ------------------ PIPELINE BEHAVIORS ------------------
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-
             // (opcional futuro)
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));

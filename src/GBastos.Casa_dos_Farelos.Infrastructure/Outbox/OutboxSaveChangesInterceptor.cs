@@ -1,4 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Outbox;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Text.Json;
 
@@ -11,31 +12,37 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         InterceptionResult<int> result,
         CancellationToken ct = default)
     {
-        var db = eventData.Context!;
-        var messages = new List<OutboxMessage>();
+        var dbContext = eventData.Context;
 
-        var entities = db.ChangeTracker
+        if (dbContext is null)
+            return base.SavingChangesAsync(eventData, result, ct);
+
+        var domainEntities = dbContext.ChangeTracker
             .Entries<Entity>()
             .Where(x => x.Entity.Events.Any())
-            .Select(x => x.Entity);
+            .Select(x => x.Entity)
+            .ToList();
 
-        foreach (var entity in entities)
+        if (domainEntities.Count == 0)
+            return base.SavingChangesAsync(eventData, result, ct);
+
+        var outboxMessages = new List<OutboxMessage>();
+
+        foreach (var entity in domainEntities)
         {
             foreach (var domainEvent in entity.Events)
             {
                 var message = new OutboxMessage(
-                    domainEvent.GetType().FullName!,   // tipo completo é importante
+                    domainEvent.GetType().FullName!,
                     JsonSerializer.Serialize(domainEvent)
                 );
 
-                messages.Add(message);
+                outboxMessages.Add(message);
             }
-
-            entity.ClearEvents();
+            entity.ClearDomainEvents();
         }
 
-        if (messages.Count > 0)
-            db.Set<OutboxMessage>().AddRange(messages);
+        dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
 
         return base.SavingChangesAsync(eventData, result, ct);
     }

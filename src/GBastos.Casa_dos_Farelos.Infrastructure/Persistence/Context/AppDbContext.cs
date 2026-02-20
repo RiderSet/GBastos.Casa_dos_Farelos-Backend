@@ -1,6 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
-using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+using GBastos.Casa_dos_Farelos.Domain.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
@@ -18,10 +18,10 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<ItemPedido> ItensPedido => Set<ItemPedido>();
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
-    public DbSet<OutboxMessage> Outbox => Set<OutboxMessage>();
-
-    DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
+    //  DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
+    DbSet<ItemCompra> IAppDbContext.ItensCompra => ItensCompra;
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) {}
@@ -73,6 +73,23 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithMany(c => c.Produtos)
             .HasForeignKey(p => p.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<OutboxMessage>(b =>
+        {
+            b.ToTable("OutboxMessages");
+
+            b.HasKey(x => x.Id);
+
+            b.Property(x => x.Type)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            b.Property(x => x.Payload)
+                .IsRequired();
+
+            b.Property(x => x.OccurredOnUtc)
+                .IsRequired();
+        });
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }

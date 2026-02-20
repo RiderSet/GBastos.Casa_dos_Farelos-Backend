@@ -1,4 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
+using GBastos.Casa_dos_Farelos.Domain.Events.Produto;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
@@ -12,16 +13,19 @@ public class Produto : Entity
     public Guid CategoriaId { get; private set; }
     public Categoria Categoria { get; private set; } = null!;
 
-    protected Produto() { } // EF
+    protected Produto() { }
 
     public Produto(string nome, string descricao, decimal precoVenda, Guid categoriaId, int estoqueInicial = 0)
     {
+        Id = Guid.NewGuid();
         AlterarNome(nome);
         AlterarDescricao(descricao);
         AlterarPreco(precoVenda);
 
         CategoriaId = categoriaId;
         QuantEstoque = estoqueInicial;
+
+        AddDomainEvent(new ProdutoCriadoEvent(nome, precoVenda));
     }
 
     public void Atualizar(string nome, string descricao, decimal preco, Guid categoriaId, int quantEstoque)

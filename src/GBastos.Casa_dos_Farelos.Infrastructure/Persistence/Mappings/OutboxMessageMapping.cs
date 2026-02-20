@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
+﻿using GBastos.Casa_dos_Farelos.Domain.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
