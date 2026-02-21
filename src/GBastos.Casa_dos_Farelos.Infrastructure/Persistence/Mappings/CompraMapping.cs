@@ -21,14 +21,13 @@ public class CompraMapping : IEntityTypeConfiguration<Compra>
         //   builder.Ignore(c => c.ValorTotal);
         builder.Ignore(c => c.ValorTotal);
 
-        builder.Metadata
-            .FindNavigation(nameof(Compra.Itens))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.HasMany<ItemCompra>("_itens")
-               .WithOne()
+        builder.HasMany(c => c.Itens)
+               .WithOne(i => i.Compra)
                .HasForeignKey(i => i.CompraId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(c => c.Itens)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasOne<Fornecedor>()
                .WithMany()

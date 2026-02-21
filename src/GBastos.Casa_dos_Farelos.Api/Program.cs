@@ -44,10 +44,7 @@ builder.Services.Scan(scan => scan
 // ======== Validators & MediatR ========
 builder.Services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
-});
+builder.Services.AddMediatR(typeof(ApplicationAssemblyMarker).Assembly);
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

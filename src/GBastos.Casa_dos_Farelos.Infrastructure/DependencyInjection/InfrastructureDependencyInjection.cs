@@ -49,8 +49,8 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IOutboxDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<ISeedHistoryDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
-       // services.AddScoped<IClientePFRepository, ClientePFRepository>();
-        //services.AddScoped<IClientePJRepository, ClientePJRepository>();
+        services.AddScoped<IClientePFRepository, ClientePFRepository>();
+        services.AddScoped<IClientePJRepository, ClientePJRepository>();
         services.AddScoped<IClienteRepository, ClienteRepository>();
         services.AddScoped<ClientePFRepository>();
         services.AddScoped<ClientePJRepository>();

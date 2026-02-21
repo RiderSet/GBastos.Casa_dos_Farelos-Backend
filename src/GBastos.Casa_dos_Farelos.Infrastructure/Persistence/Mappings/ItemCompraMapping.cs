@@ -22,17 +22,11 @@ public class ItemCompraMapping : IEntityTypeConfiguration<ItemCompra>
                .HasPrecision(18, 2)
                .IsRequired();
 
-        builder.Property(i => i.SubTotal)
-               .HasPrecision(18, 2)
-               .IsRequired();
+        builder.Ignore(i => i.SubTotal);
 
         builder.HasOne(i => i.Produto)
                .WithMany()
                .HasForeignKey(i => i.ProdutoId)
                .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(i => i.Compra)
-               .WithMany("_itens")
-               .HasForeignKey(i => i.CompraId);
     }
 }

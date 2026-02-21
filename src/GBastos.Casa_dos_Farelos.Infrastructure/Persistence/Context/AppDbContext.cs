@@ -98,15 +98,7 @@ public sealed class AppDbContext : DbContext,
         });
 
         // ===================== COMPRA =====================
-        modelBuilder.Entity<Compra>(entity =>
-        {
-            entity.ToTable("Compras");
-
-            entity.HasMany(c => c.Itens)
-                  .WithOne(i => i.Compra)
-                  .HasForeignKey(i => i.CompraId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
+        // Configuração movida para CompraMapping.cs
 
         modelBuilder.Entity<ItemVenda>()
             .ToTable("ItensVenda");
@@ -123,6 +115,13 @@ public sealed class AppDbContext : DbContext,
                   .WithOne()
                   .HasForeignKey("CarrinhoId")
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CarrinhoItem>(entity =>
+        {
+            entity.ToTable("CarrinhoItens");
+            entity.HasKey(i => i.Id);
+            entity.Property(i => i.PrecoUnitario).HasPrecision(18, 2);
         });
 
         // ===================== OUTBOX =====================

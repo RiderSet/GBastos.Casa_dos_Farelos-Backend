@@ -36,22 +36,10 @@ public class ItemVendaMapping : IEntityTypeConfiguration<ItemVenda>
 
         // ================= RELACIONAMENTO =================
 
-        // Venda (Aggregate Root)
-        builder.HasOne(i => i.Venda)
-               .WithMany("_itens") // usa campo privado da Venda
-               .HasForeignKey(i => i.VendaId)
-               .OnDelete(DeleteBehavior.Cascade)
-               .IsRequired();
-
         // Produto (somente referência)
         builder.HasOne(i => i.Produto)
                .WithMany()
                .HasForeignKey(i => i.ProdutoId)
                .OnDelete(DeleteBehavior.Restrict);
-
-        // ================= IMPORTANTE =================
-        // impede EF de tentar setar coleção diretamente
-        builder.Navigation(i => i.Venda)
-               .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

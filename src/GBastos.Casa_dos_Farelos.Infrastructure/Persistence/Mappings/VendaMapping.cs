@@ -15,8 +15,7 @@ public class VendaMapping : IEntityTypeConfiguration<Venda>
         builder.Property(v => v.DataVenda)
                .IsRequired();
 
-        builder.Property(v => v.TotalVenda)
-               .HasPrecision(18, 2);
+        builder.Ignore(v => v.TotalVenda);
 
         builder.Property(v => v.ClienteId)
                .IsRequired();
@@ -43,13 +42,12 @@ public class VendaMapping : IEntityTypeConfiguration<Venda>
 
         // -------- BACKING FIELD (ESSENCIAL) --------
 
-        builder.Metadata
-            .FindNavigation(nameof(Venda.Itens))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.HasMany<ItemVenda>("_itens")
+        builder.HasMany(v => v.Itens)
                .WithOne(i => i.Venda)
                .HasForeignKey(i => i.VendaId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(v => v.Itens)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

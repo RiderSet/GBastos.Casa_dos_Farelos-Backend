@@ -32,14 +32,12 @@ public class PedidoMapping : IEntityTypeConfiguration<Pedido>
                .HasForeignKey(p => p.ClienteId)
                .OnDelete(DeleteBehavior.Restrict);
 
-        // BACKING FIELD
-        builder.Metadata
-            .FindNavigation(nameof(Pedido.Itens))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.HasMany<ItemPedido>("_itens")
+        builder.HasMany(p => p.Itens)
                .WithOne(i => i.Pedido)
                .HasForeignKey(i => i.PedidoId)
                .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Itens)
+               .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

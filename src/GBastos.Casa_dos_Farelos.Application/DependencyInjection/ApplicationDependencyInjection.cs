@@ -14,10 +14,7 @@ namespace GBastos.Casa_dos_Farelos.Application.DependencyInjection
 
 
             // ------------------ MEDIATR ------------------
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(assembly);
-            });
+            services.AddMediatR(assembly);
 
 
             // ------------------ FLUENT VALIDATION ------------------
