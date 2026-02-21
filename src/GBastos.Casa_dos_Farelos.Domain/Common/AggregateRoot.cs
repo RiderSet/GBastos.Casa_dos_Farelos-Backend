@@ -23,11 +23,16 @@ public abstract class AggregateRoot : IHasDomainEvents
         _domainEvents.Add(domainEvent);
     }
 
-    public void RemoveDomainEvent(IDomainEvent domainEvent)
+    internal void RemoveDomainEvent(IDomainEvent domainEvent)
     {
         if (domainEvent is null) return;
 
         _domainEvents.Remove(domainEvent);
+    }
+
+    public void Validate()
+    {
+        ValidateInvariants();
     }
 
     public void ClearDomainEvents()

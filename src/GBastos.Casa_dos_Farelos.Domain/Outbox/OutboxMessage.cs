@@ -7,19 +7,19 @@ namespace GBastos.Casa_dos_Farelos.Domain.Outbox;
 /// </summary>
 public sealed class OutboxMessage : Entity
 {
-    public string Type { get; private set; } = null!;
+    public string EventName { get; private set; } = null!;
     public string Payload { get; private set; } = null!;
     public DateTime OccurredOnUtc { get; private set; }
-    public DateTime? ProcessedOn { get; private set; }
+    public DateTime? ProcessedOnUtc { get; private set; }
     public int Attempts { get; private set; }
     public string? ErrorMessage { get; private set; } // ← nova propriedade
 
     private OutboxMessage() { } // EF Core
 
-    public OutboxMessage(string type, string payload)
+    public OutboxMessage(string eventName, string payload)
     {
         Id = Guid.NewGuid();
-        Type = type ?? throw new ArgumentNullException(nameof(type));
+        EventName = eventName ?? throw new ArgumentNullException(nameof(eventName));
         Payload = payload ?? throw new ArgumentNullException(nameof(payload));
         OccurredOnUtc = DateTime.UtcNow;
         Attempts = 0;
@@ -30,9 +30,9 @@ public sealed class OutboxMessage : Entity
     /// </summary>
     public void MarkAsProcessed()
     {
-        ProcessedOn = DateTime.UtcNow;
+        ProcessedOnUtc = DateTime.UtcNow;
         Attempts++;
-        ErrorMessage = null; // limpa erro anterior, se houver
+        ErrorMessage = null;
     }
 
     /// <summary>
@@ -44,5 +44,5 @@ public sealed class OutboxMessage : Entity
         Attempts++;
     }
 
-    public bool IsProcessed => ProcessedOn.HasValue;
+    public bool IsProcessed => ProcessedOnUtc.HasValue;
 }

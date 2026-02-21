@@ -1,5 +1,4 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-using GBastos.Casa_dos_Farelos.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Extensioons;

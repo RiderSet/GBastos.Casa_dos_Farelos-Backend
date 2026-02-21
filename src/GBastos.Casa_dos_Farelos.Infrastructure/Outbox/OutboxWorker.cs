@@ -45,7 +45,7 @@ public sealed class OutboxWorker : BackgroundService
                         msg.EventName,
                         stoppingToken);
 
-                    msg.MarkProcessed();
+                    msg.MarkAsProcessed();
                 }
                 catch (Exception ex)
                 {

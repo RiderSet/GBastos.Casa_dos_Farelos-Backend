@@ -1,9 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-<<<<<<< HEAD
-using GBastos.Casa_dos_Farelos.Domain.Events.Produto;
-=======
 using GBastos.Casa_dos_Farelos.Domain.Events;
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
+using GBastos.Casa_dos_Farelos.Domain.Events.Produto;
 
 namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 
@@ -18,25 +15,21 @@ public class Produto : BaseEntity
     public Guid CategoriaId { get; private set; }
     public Categoria Categoria { get; private set; } = null!;
 
-<<<<<<< HEAD
-    protected Produto() { }
-=======
     public byte[] RowVersion { get; private set; } = null!;
 
-    protected Produto() { } // EF
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
+    protected Produto() { }
 
     public Produto(string nome, string descricao, decimal precoVenda, Guid categoriaId, int estoqueInicial = 0)
     {
         Id = Guid.NewGuid();
         AlterarNome(nome);
-        AlterarDescricao(descricao);
+        AlterarDescricao(descricao);    
         AlterarPreco(precoVenda);
 
         CategoriaId = categoriaId;
         QuantEstoque = estoqueInicial;
 
-        AddDomainEvent(new ProdutoCriadoEvent(nome, precoVenda));
+        AddDomainEvent(new ProdutoCriadoEvent(Id, nome, precoVenda));
     }
 
     public void EntradaEstoque(int quantidade)
@@ -68,6 +61,11 @@ public class Produto : BaseEntity
     }
 
     private void AddDomainEvent(EstoqueBaixadoDomainEvent estoqueBaixadoDomainEvent)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void AddDomainEvent(ProdutoCriadoEvent produtoCriadoEvent)
     {
         throw new NotImplementedException();
     }

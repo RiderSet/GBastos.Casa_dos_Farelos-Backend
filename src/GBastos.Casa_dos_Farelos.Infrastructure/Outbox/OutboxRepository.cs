@@ -54,7 +54,7 @@ public sealed class OutboxRepository : IOutboxRepository
         if (message is null)
             return;
 
-        message.MarkProcessed();
+        message.MarkAsProcessed();
     }
 
     public async Task MarkAsFailedAsync(Guid id, string error, CancellationToken ct)

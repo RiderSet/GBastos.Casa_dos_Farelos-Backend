@@ -2,7 +2,6 @@
 using GBastos.Casa_dos_Farelos.Domain.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
-using GBastos.Casa_dos_Farelos.Shared.IntegrationEvents;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 
 public sealed class IntegrationEventMapping : IIntegrationEventMapper
@@ -19,12 +18,11 @@ public sealed class IntegrationEventMapping : IIntegrationEventMapper
     private static IIntegrationEvent MapCompraCriada(CompraCriadaDomainEvent e)
     {
         var itens = e.Itens
-            .Select(i => new CompraItemDto(
+            .Select(i => new ItemCompraDto(
                 i.ProdutoId,
                 i.NomeProduto,
                 i.Quantidade,
-                i.CustoUnitario,
-                i.SubTotal))
+                i.CustoUnitario))
             .ToList();
 
         return new CompraCriadaIntegrationEvent(

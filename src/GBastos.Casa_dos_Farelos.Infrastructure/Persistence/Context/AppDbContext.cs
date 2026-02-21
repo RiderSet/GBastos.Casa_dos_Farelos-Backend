@@ -1,14 +1,9 @@
 ﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Domain.Entities;
-<<<<<<< HEAD
-using GBastos.Casa_dos_Farelos.Domain.Outbox;
-=======
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Seed.General;
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
 using Microsoft.EntityFrameworkCore;
-
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
 public sealed class AppDbContext : DbContext,
@@ -30,12 +25,6 @@ public sealed class AppDbContext : DbContext,
     public DbSet<ItemPedido> ItensPedido => Set<ItemPedido>();
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<ItemCompra> ItensCompra => Set<ItemCompra>();
-<<<<<<< HEAD
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-
-    //  DbSet<ItemCompra> IAppDbContext.ItensCompra => throw new NotImplementedException();
-    DbSet<ItemCompra> IAppDbContext.ItensCompra => ItensCompra;
-=======
     public DbSet<ItemVenda> ItensVenda => Set<ItemVenda>();
     public DbSet<Venda> Vendas => Set<Venda>();
     public DbSet<Produto> Produtos => Set<Produto>();
@@ -43,13 +32,16 @@ public sealed class AppDbContext : DbContext,
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<DataSeedHistory> DataSeedHistory => Set<DataSeedHistory>();
 
+    // ================= Interfaces =================
+
+    DbSet<ItemCompra> IAppDbContext.ItensCompra => ItensCompra;
+
     IQueryable<Carrinho> IAppDbContext.Carrinhos => Carrinhos.AsQueryable();
     IQueryable<Venda> IAppDbContext.Vendas => Vendas.AsQueryable();
     IQueryable<Produto> IAppDbContext.Produtos => Produtos.AsQueryable();
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
         => base.SaveChangesAsync(ct);
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -94,6 +86,7 @@ public sealed class AppDbContext : DbContext,
         modelBuilder.Entity<Produto>(entity =>
         {
             entity.ToTable("Produtos");
+
             entity.Property(p => p.Nome).IsRequired();
             entity.Property(p => p.DescricaoProduto).IsRequired();
             entity.Property(p => p.PrecoVenda).HasPrecision(18, 2);
@@ -104,7 +97,7 @@ public sealed class AppDbContext : DbContext,
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ===================== VENDA =====================
+        // ===================== COMPRA =====================
         modelBuilder.Entity<Compra>(entity =>
         {
             entity.ToTable("Compras");
@@ -113,30 +106,6 @@ public sealed class AppDbContext : DbContext,
                   .WithOne(i => i.Compra)
                   .HasForeignKey(i => i.CompraId)
                   .OnDelete(DeleteBehavior.Cascade);
-
-<<<<<<< HEAD
-        modelBuilder.Entity<OutboxMessage>(b =>
-        {
-            b.ToTable("OutboxMessages");
-
-            b.HasKey(x => x.Id);
-
-            b.Property(x => x.Type)
-                .IsRequired()
-                .HasMaxLength(200);
-
-            b.Property(x => x.Payload)
-                .IsRequired();
-
-            b.Property(x => x.OccurredOnUtc)
-                .IsRequired();
-        });
-
-=======
-            entity.HasOne(c => c.Carrinho)
-                  .WithMany()
-                  .HasForeignKey(c => c.Id)
-                  .OnDelete(DeleteBehavior.SetNull); // se carrinho for deletado, compra permanece
         });
 
         modelBuilder.Entity<ItemVenda>()
@@ -154,31 +123,15 @@ public sealed class AppDbContext : DbContext,
                   .WithOne()
                   .HasForeignKey("CarrinhoId")
                   .OnDelete(DeleteBehavior.Cascade);
-
-            //entity.Navigation(nameof(Carrinho.Itens))
-            //      .HasField("_itens")
-            //      .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-            //entity.OwnsMany(typeof(CarrinhoItem), "_itens", item =>
-            //{
-            //    item.ToTable("CarrinhoItens");
-
-            //    item.WithOwner()
-            //        .HasForeignKey("CarrinhoId");
-
-            //    item.Property<Guid>("Id");
-            //    item.HasKey("Id");
-
-            //    item.Property<Guid>("ProdutoId").IsRequired();
-            //    item.Property<int>("Quantidade").IsRequired();
-            //    item.Property<decimal>("PrecoUnitario").HasPrecision(18, 2);
-            //});
         });
 
         // ===================== OUTBOX =====================
         modelBuilder.Entity<OutboxMessage>(entity =>
         {
             entity.ToTable("OutboxMessages");
+
+            entity.HasKey(x => x.Id);
+
             entity.Property(o => o.EventName).IsRequired();
             entity.Property(o => o.OccurredOnUtc).IsRequired();
         });
@@ -187,12 +140,12 @@ public sealed class AppDbContext : DbContext,
         modelBuilder.Entity<DataSeedHistory>(entity =>
         {
             entity.ToTable("__DataSeedHistory");
+
             entity.HasKey(x => x.Id);
             entity.Property(x => x.AppliedOnUtc).IsRequired();
         });
 
-        // 🔥 Aplicar configurações UMA ÚNICA VEZ
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
+        // 🔥 Aplicar configurações externas
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

@@ -20,14 +20,12 @@ public sealed class ObterCompraPorIdQueryHandler
 
         // Mapeia itens
         var itensDto = compra.Itens
-            .Select(i => new ItemCompraDto
-            {
-                ProdutoId = i.ProdutoId,
-                NomeProduto = i.NomeProduto,
-                Quantidade = i.Quantidade,
-                CustoUnitario = i.CustoUnitario,
-                SubTotal = i.Quantidade * i.CustoUnitario
-            })
+            .Select(i => new ItemCompraDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario
+            ))
             .ToList();
 
         // Calcula valor total
@@ -37,9 +35,8 @@ public sealed class ObterCompraPorIdQueryHandler
         return new CompraDto
         {
             Id = compra.Id,
-            ClienteId = compra.ClienteId,
+            FornecedorId = compra.FornecedorId,
             FuncionarioId = compra.FuncionarioId,
-            CarrinhoId = compra.CarrinhoId,
             DataCompra = compra.DataCompra,
             Finalizada = compra.Finalizada,
             Itens = itensDto

@@ -1,6 +1,6 @@
 ﻿using GBastos.Casa_dos_Farelos.Domain.Common;
-using GBastos.Casa_dos_Farelos.Domain.Outbox;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Text.Json;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 
@@ -14,58 +14,39 @@ public sealed class OutboxSaveChangesInterceptor : SaveChangesInterceptor
         var dbContext = eventData.Context;
 
         if (dbContext is null)
-<<<<<<< HEAD
-            return base.SavingChangesAsync(eventData, result, ct);
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-        var domainEntities = dbContext.ChangeTracker
-            .Entries<Entity>()
-            .Where(x => x.Entity.Events.Any())
-            .Select(x => x.Entity)
+        // Captura todos os aggregates com eventos
+        var aggregates = dbContext.ChangeTracker
+            .Entries<AggregateRoot>()
+            .Where(entry => entry.Entity.DomainEvents.Any())
+            .Select(entry => entry.Entity)
             .ToList();
 
-        if (domainEntities.Count == 0)
-            return base.SavingChangesAsync(eventData, result, ct);
+        if (!aggregates.Any())
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
 
         var outboxMessages = new List<OutboxMessage>();
 
-        foreach (var entity in domainEntities)
+        foreach (var aggregate in aggregates)
         {
-            foreach (var domainEvent in entity.Events)
+            foreach (var domainEvent in aggregate.DomainEvents)
             {
-                var message = new OutboxMessage(
+                var outboxMessage = new OutboxMessage(
+                    Guid.NewGuid(), // ID correto
                     domainEvent.GetType().FullName!,
-                    JsonSerializer.Serialize(domainEvent)
+                    JsonSerializer.Serialize(domainEvent),
+                    DateTime.UtcNow
                 );
 
-                outboxMessages.Add(message);
+                outboxMessages.Add(outboxMessage);
             }
-            entity.ClearDomainEvents();
+
+            // Limpa eventos após capturar
+            aggregate.ClearDomainEvents();
         }
 
         dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
-=======
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
-
-        var domainEvents = dbContext.ChangeTracker
-            .Entries<AggregateRoot>()
-            .SelectMany(e => e.Entity.DomainEvents)
-            .ToList();
-
-        if (domainEvents.Count == 0)
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
-
-        foreach (var domainEvent in domainEvents)
-        {
-            var outboxMessage = OutboxMessage.CreateDomainEvent(domainEvent);
-            dbContext.Set<OutboxMessage>().Add(outboxMessage);
-        }
-
-        // limpa eventos após salvar
-        foreach (var entry in dbContext.ChangeTracker.Entries<AggregateRoot>())
-            entry.Entity.ClearDomainEvents();
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
-
-       // dbContext.Set<OutboxMessage>().AddRange(outboxMessages);
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }

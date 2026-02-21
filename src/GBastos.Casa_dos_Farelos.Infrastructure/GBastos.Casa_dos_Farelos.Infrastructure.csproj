@@ -11,13 +11,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.12" />
-<<<<<<< HEAD
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
-=======
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
     <PackageReference Include="Scrutor" Version="7.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.10.14" />
   </ItemGroup>

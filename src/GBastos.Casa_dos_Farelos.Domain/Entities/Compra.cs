@@ -6,12 +6,16 @@ namespace GBastos.Casa_dos_Farelos.Domain.Entities;
 public class Compra : AggregateRoot
 {
     public Guid Id { get; private set; }
+
     public Guid FornecedorId { get; private set; }
-    public DateTime DataCompra { get; private set; }
-    public bool Finalizada { get; private set; }
+    public Fornecedor Fornecedor { get; private set; } = null!;
 
     public Guid FuncionarioId { get; private set; }
     public Funcionario Funcionario { get; private set; } = null!;
+
+    public DateTime DataCompra { get; private set; }
+
+    public bool Finalizada { get; private set; }
 
     private readonly List<ItemCompra> _itens = new();
     public IReadOnlyCollection<ItemCompra> Itens => _itens;
@@ -62,7 +66,6 @@ public class Compra : AggregateRoot
 
         Finalizada = true;
 
-        // 🔥 Conciliação com estoque via evento
         var snapshot = _itens.Select(i =>
             new CompraItemSnapshot(
                 i.ProdutoId,
@@ -79,6 +82,7 @@ public class Compra : AggregateRoot
             nomeFuncionario,
             DataCompra,
             ValorTotal,
+            true,
             snapshot
         ));
     }

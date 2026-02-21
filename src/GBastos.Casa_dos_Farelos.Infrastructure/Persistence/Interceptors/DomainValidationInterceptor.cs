@@ -20,7 +20,7 @@ public sealed class DomainValidationInterceptor : SaveChangesInterceptor
 
         foreach (var aggregate in aggregates)
         {
-            aggregate.ValidateInvariants();
+            aggregate.Validate();
         }
     }
 

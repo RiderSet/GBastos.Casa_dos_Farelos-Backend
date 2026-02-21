@@ -59,7 +59,7 @@ public sealed class OutboxMessage : BaseEntity
         );
     }
 
-    public void MarkProcessed()
+    public void MarkAsProcessed()
     {
         ProcessedOnUtc = DateTime.UtcNow;
         Error = null;

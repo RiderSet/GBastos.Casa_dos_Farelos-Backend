@@ -1,10 +1,11 @@
 ﻿namespace GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 
-public class ItemCompraDto
+public sealed record ItemCompraDto(
+    Guid ProdutoId,
+    string NomeProduto,
+    int Quantidade,
+    decimal PrecoUnitario
+)
 {
-    public Guid ProdutoId { get; set; }
-    public string NomeProduto { get; set; } = null!;
-    public int Quantidade { get; set; }
-    public decimal CustoUnitario { get; set; }
-    public decimal SubTotal { get; set; }
+    public decimal SubTotal => Quantidade * PrecoUnitario;
 }

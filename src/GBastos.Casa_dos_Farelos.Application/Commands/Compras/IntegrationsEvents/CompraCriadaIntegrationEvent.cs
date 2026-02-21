@@ -1,5 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Domain.Dtos;
-using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
+﻿using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 
 namespace GBastos.Casa_dos_Farelos.Application.Commands.Compras.IntegrationsEvents;
@@ -29,7 +28,7 @@ public sealed class CompraCriadaIntegrationEvent : IIntegrationEvent
     public int Version { get; } = 1;
 
     // Construtor
-    public CompraCriadaIntegrationEvent(Guid compraId, Guid fornecedorId, decimal total, List<CompraItemDto> itens)
+    public CompraCriadaIntegrationEvent(Guid compraId, Guid fornecedorId, decimal total, List<ItemCompraDto> itens)
     {
         Id = Guid.NewGuid();
         OccurredOnUtc = DateTime.UtcNow;

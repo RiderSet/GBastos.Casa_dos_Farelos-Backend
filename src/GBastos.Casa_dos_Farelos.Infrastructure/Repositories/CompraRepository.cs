@@ -55,20 +55,18 @@ public class CompraRepository : ICompraRepository
         if (compra == null) return null;
 
         var itensDto = compra.Itens
-            .Select(i => new ItemCompraDto
-            {
-                ProdutoId = i.ProdutoId,
-                NomeProduto = i.NomeProduto,
-                Quantidade = i.Quantidade,
-                CustoUnitario = i.CustoUnitario,
-                SubTotal = i.Quantidade * i.CustoUnitario
-            })
+            .Select(i => new ItemCompraDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario
+            ))
             .ToList();
 
         return new CompraDto
         {
             Id = compra.Id,
-            ClienteId = compra.Id,
+            FornecedorId = compra.FornecedorId,
             FuncionarioId = compra.FuncionarioId,
             DataCompra = compra.DataCompra,
             Finalizada = compra.Finalizada,
@@ -93,18 +91,18 @@ public class CompraRepository : ICompraRepository
             .Select(c => new CompraDto
             {
                 Id = c.Id,
-                ClienteId = c.Id,
+                FornecedorId = c.FornecedorId,
                 FuncionarioId = c.FuncionarioId,
                 DataCompra = c.DataCompra,
                 Finalizada = c.Finalizada,
-                Itens = c.Itens.Select(i => new ItemCompraDto
-                {
-                    ProdutoId = i.ProdutoId,
-                    NomeProduto = i.NomeProduto,
-                    Quantidade = i.Quantidade,
-                    CustoUnitario = i.CustoUnitario,
-                    SubTotal = i.Quantidade * i.CustoUnitario
-                }).ToList()
+                Itens = c.Itens
+    .Select(i => new ItemCompraDto(
+        i.ProdutoId,
+        i.NomeProduto,
+        i.Quantidade,
+        i.CustoUnitario
+    ))
+    .ToList()
             })
             .ToListAsync(ct);
 
@@ -132,18 +130,18 @@ public class CompraRepository : ICompraRepository
             .Select(c => new CompraDto
             {
                 Id = c.Id,
-                ClienteId = c.Id,
+                FornecedorId = c.FornecedorId,
                 FuncionarioId = c.FuncionarioId,
                 DataCompra = c.DataCompra,
                 Finalizada = c.Finalizada,
-                Itens = c.Itens.Select(i => new ItemCompraDto
-                {
-                    ProdutoId = i.ProdutoId,
-                    NomeProduto = i.NomeProduto,
-                    Quantidade = i.Quantidade,
-                    CustoUnitario = i.CustoUnitario,
-                    SubTotal = i.Quantidade * i.CustoUnitario
-                }).ToList()
+                Itens = c.Itens
+    .Select(i => new ItemCompraDto(
+        i.ProdutoId,
+        i.NomeProduto,
+        i.Quantidade,
+        i.CustoUnitario
+    ))
+    .ToList()
             })
             .ToListAsync(ct);
 

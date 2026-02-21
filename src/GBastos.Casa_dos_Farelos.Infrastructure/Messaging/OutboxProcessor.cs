@@ -24,7 +24,8 @@ public class OutboxProcessor : BackgroundService
             var publisher = scope.ServiceProvider.GetRequiredService<RabbitMqPublisher>();
 
             var messages = await db.OutboxMessages
-                .Where(x => x.ProcessedOn == null)
+                .Where(x => x.ProcessedOnUtc == null)
+                .OrderBy(x => x.OccurredOnUtc)
                 .Take(20)
                 .ToListAsync(stoppingToken);
 
@@ -32,13 +33,16 @@ public class OutboxProcessor : BackgroundService
             {
                 try
                 {
-                    await publisher.PublishAsync(msg.Type, msg.Payload, stoppingToken);
+                    await publisher.PublishAsync(
+                        msg.EventName,
+                        msg.Payload,
+                        stoppingToken);
 
-                    msg.MarkAsProcessed(); // ← DDD correto
+                    msg.MarkAsProcessed();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Erro ao processar mensagem de outbox: {ex.Message}");
+                    msg.MarkFailed(ex.Message);
                 }
             }
 

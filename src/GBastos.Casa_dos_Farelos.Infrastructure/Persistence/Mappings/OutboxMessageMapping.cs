@@ -30,7 +30,7 @@ public sealed class OutboxMessageMapping : IEntityTypeConfiguration<OutboxMessag
         builder.Property(x => x.ProcessedOnUtc)
             .IsRequired(false);
 
-        builder.Property(x => x.Error)
+        builder.Property(x => x.ErrorMessage)
             .HasColumnType("nvarchar(max)")
             .IsRequired(false);
 

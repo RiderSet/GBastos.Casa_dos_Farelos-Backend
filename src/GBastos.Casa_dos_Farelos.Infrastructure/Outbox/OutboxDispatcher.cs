@@ -53,7 +53,7 @@ public sealed class OutboxDispatcher : IOutboxDispatcher
 
                 await _publisher.Publish(domainEvent, ct);
 
-                message.MarkProcessed();
+                message.MarkAsProcessed();
             }
             catch (Exception ex)
             {

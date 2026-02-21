@@ -11,6 +11,9 @@ public class ItemCompra : BaseEntity
     public decimal CustoUnitario { get; private set; }
     public decimal SubTotal => Quantidade * CustoUnitario;
 
+    public Produto Produto { get; private set; } = null!;
+    public Compra Compra { get; private set; } = null!;
+
     protected ItemCompra() { }
 
     public ItemCompra(Guid produtoId, string nomeProduto, int quantidade, decimal custoUnitario)

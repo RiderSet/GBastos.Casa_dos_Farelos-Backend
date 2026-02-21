@@ -23,7 +23,7 @@ public sealed class CriarCompraHandler : IRequestHandler<CriarCompraCommand, Gui
         if (!fornecedorExiste)
             throw new DomainException("Fornecedor não encontrado.");
 
-        var compra = Compra.Criar(request.FornecedorId);
+        var compra = Compra.Criar(request.FornecedorId, request.FuncionarioId);
 
         foreach (var item in request.Itens)
         {
@@ -31,14 +31,14 @@ public sealed class CriarCompraHandler : IRequestHandler<CriarCompraCommand, Gui
                 .FirstOrDefaultAsync(p => p.Id == item.ProdutoId, cancellationToken)
                 ?? throw new DomainException($"Produto {item.ProdutoId} não encontrado.");
 
-            produto.AjustarEstoque(item.Quantidade);
-
-            compra.AdicionarItem(
+            compra.AdicionarProduto(
                 item.ProdutoId,
                 item.NomeProduto,
                 item.Quantidade,
                 item.CustoUnitario
             );
+
+            produto.EntradaEstoque(item.Quantidade);
         }
 
         compra.Finalizar();

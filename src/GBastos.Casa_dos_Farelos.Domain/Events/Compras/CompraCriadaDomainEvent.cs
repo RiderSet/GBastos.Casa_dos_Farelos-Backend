@@ -4,11 +4,12 @@ namespace GBastos.Casa_dos_Farelos.Domain.Events.Compras;
 
 public sealed record CompraCriadaDomainEvent(
     Guid CompraId,
-    Guid ClienteId,
+    Guid FornecedorId,
     Guid FuncionarioId,
     string NomeFuncionario,
     DateTime DataCompra,
     decimal ValorTotal,
+    bool Finalizada,
     List<CompraItemSnapshot> Itens
 ) : IDomainEvent
 {

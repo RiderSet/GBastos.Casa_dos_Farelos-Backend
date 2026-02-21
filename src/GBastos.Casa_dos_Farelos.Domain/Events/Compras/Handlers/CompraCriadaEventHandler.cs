@@ -1,4 +1,5 @@
-﻿using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
+﻿using GBastos.Casa_dos_Farelos.Domain.Entities;
+using GBastos.Casa_dos_Farelos.Shared.Dtos.Compras;
 using GBastos.Casa_dos_Farelos.Shared.Interfaces;
 using MediatR;
 
@@ -16,14 +17,12 @@ public class CompraCriadaEventHandler : INotificationHandler<CompraCriadaDomainE
     public async Task Handle(CompraCriadaDomainEvent notification, CancellationToken cancellationToken)
     {
         var itensDto = notification.Itens
-            .Select(i => new ItemCompraDto
-            {
-                ProdutoId = i.ProdutoId,
-                NomeProduto = i.NomeProduto,
-                Quantidade = i.Quantidade,
-                CustoUnitario = i.CustoUnitario,
-                SubTotal = i.Quantidade * i.CustoUnitario
-            })
+            .Select(i => new ItemCompraDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario
+            ))
             .ToList();
 
         // Calcula total da compra
@@ -32,10 +31,10 @@ public class CompraCriadaEventHandler : INotificationHandler<CompraCriadaDomainE
         var compraDto = new CompraDto
         {
             Id = notification.CompraId,
+            FornecedorId = notification.FornecedorId,
             FuncionarioId = notification.FuncionarioId,
-            ClienteId = notification.ClienteId,
             DataCompra = notification.DataCompra,
-            Finalizada = true,
+            Finalizada = notification.Finalizada,
             Itens = itensDto
         };
 

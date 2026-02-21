@@ -14,14 +14,7 @@ public sealed class OutboxProcessor : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OutboxProcessor> _logger;
-<<<<<<< HEAD
 
-    public OutboxProcessor(
-        IServiceScopeFactory scopeFactory,
-        ILogger<OutboxProcessor> logger)
-    {
-        _scopeFactory = scopeFactory;
-=======
     private readonly IServiceProvider _provider;
 
     public OutboxProcessor(
@@ -31,28 +24,11 @@ public sealed class OutboxProcessor : BackgroundService
     {
         _scopeFactory = scopeFactory;
         _provider = provider;
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-<<<<<<< HEAD
-        _logger.LogInformation("Outbox Processor iniciado");
-
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                await ProcessMessages(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro geral no OutboxProcessor");
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
-=======
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _provider.CreateScope();
@@ -82,7 +58,6 @@ public sealed class OutboxProcessor : BackgroundService
             }
 
             await Task.Delay(1500, stoppingToken);
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         }
     }
 
@@ -92,20 +67,12 @@ public sealed class OutboxProcessor : BackgroundService
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var bus = scope.ServiceProvider.GetRequiredService<IEventBus>();
-<<<<<<< HEAD
-
-        var messages = await db.OutboxMessages
-            .Where(x => x.ProcessedOn == null)
-            .OrderBy(x => x.OccurredOnUtc)
-            .Take(20)
-=======
-        var resolver = scope.ServiceProvider.GetRequiredService<IIntegrationEventTypeResolver>();
 
         var messages = await db.OutboxMessages
             .Where(x => x.ProcessedOnUtc == null)
             .OrderBy(x => x.OccurredOnUtc)
-            .Take(50)
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
+            .Take(20)
+
             .ToListAsync(ct);
 
         if (messages.Count == 0)
@@ -117,18 +84,17 @@ public sealed class OutboxProcessor : BackgroundService
         {
             try
             {
-<<<<<<< HEAD
-                var type = Type.GetType(message.Type);
+                var type = Type.GetType(message.EventName);
                 if (type == null)
                 {
-                    message.SetError($"Tipo não encontrado: {message.Type}");
+                    message.MarkFailed($"Tipo não encontrado: {message.EventName}");
                     continue;
                 }
 
                 var domainEvent = JsonSerializer.Deserialize(message.Payload, type);
                 if (domainEvent == null)
                 {
-                    message.SetError("Falha ao desserializar evento");
+                    message.MarkFailed("Falha ao desserializar evento");
                     continue;
                 }
 
@@ -138,36 +104,10 @@ public sealed class OutboxProcessor : BackgroundService
             }
             catch (Exception ex)
             {
-                message.SetError(ex.Message);
-                _logger.LogError(ex, "Erro ao processar mensagem {Id}", message.Id);
-            }
-        }
-
-=======
-                var type = resolver.Resolve(message.EventName);
-                if (type == null)
-                {
-                    message.MarkFailed($"Tipo não mapeado: {message.EventName}");
-                    continue;
-                }
-
-                var integrationEvent = JsonSerializer.Deserialize(message.Payload, type);
-                if (integrationEvent == null)
-                {
-                    message.MarkFailed("Falha ao desserializar evento");
-                    continue;
-                }
-
-                await bus.Publish(integrationEvent, ct);
-                message.MarkProcessed();
-            }
-            catch (Exception ex)
-            {
                 message.MarkFailed(ex.Message);
                 _logger.LogError(ex, "Erro ao processar mensagem {Id}", message.Id);
             }
         }
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
         await db.SaveChangesAsync(ct);
     }
 }

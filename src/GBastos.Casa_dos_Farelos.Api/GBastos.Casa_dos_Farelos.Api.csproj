@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Application\GBastos.Casa_dos_Farelos.Application.csproj" />
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Infrastructure\GBastos.Casa_dos_Farelos.Infrastructure.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Shared\GBastos.Casa_dos_Farelos.Shared.csproj" />
   </ItemGroup>
 
 </Project>

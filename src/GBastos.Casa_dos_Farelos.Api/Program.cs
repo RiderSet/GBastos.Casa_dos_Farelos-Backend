@@ -6,11 +6,8 @@ using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Application.Validators.Behaviors;
 using GBastos.Casa_dos_Farelos.Domain.Common;
 using GBastos.Casa_dos_Farelos.Infrastructure.DependencyInjection;
-<<<<<<< HEAD
-using GBastos.Casa_dos_Farelos.Infrastructure.Messaging;
-=======
 using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
+using GBastos.Casa_dos_Farelos.Infrastructure.Messaging;
 using GBastos.Casa_dos_Farelos.Infrastructure.Outbox;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.DataMigrations;
@@ -25,7 +22,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,22 +56,21 @@ builder.Services.AddScoped<DomainValidationInterceptor>();
 builder.Services.AddScoped<PublishDomainEventsInterceptor>();
 builder.Services.AddScoped<OutboxSaveChangesInterceptor>();
 
-<<<<<<< HEAD
-builder.Services.AddSingleton(async sp =>
+builder.Services.AddSingleton<RabbitMqConnection>(sp =>
 {
-    return await RabbitMqConnection.CreateAsync(
-        builder.Configuration["Rabbit:Host"]!,
-        builder.Configuration["Rabbit:User"]!,
-        builder.Configuration["Rabbit:Pass"]!
-    );
+    var config = sp.GetRequiredService<IConfiguration>();
+
+    return RabbitMqConnection.CreateAsync(
+        config["Rabbit:Host"]!,
+        config["Rabbit:User"]!,
+        config["Rabbit:Pass"]!
+    ).GetAwaiter().GetResult();
 });
 
 //Console.WriteLine("CONNECTION STRING = " + builder.Configuration.GetConnectionString("Conn"));
-=======
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
->>>>>>> 532a5516c5422679921d3b0f6d7a9995a5d30bda
 // ======== Database ========
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {

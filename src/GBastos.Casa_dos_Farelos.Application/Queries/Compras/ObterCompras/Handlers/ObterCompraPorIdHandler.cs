@@ -29,14 +29,12 @@ public sealed class ObterCompraPorIdHandler
 
         // Mapeia itens para DTOs
         var itensDto = compra.Itens
-            .Select(i => new ItemCompraDto
-            {
-                ProdutoId = i.ProdutoId,
-                NomeProduto = i.NomeProduto,
-                Quantidade = i.Quantidade,
-                CustoUnitario = i.CustoUnitario,
-                SubTotal = i.Quantidade * i.CustoUnitario
-            })
+            .Select(i => new ItemCompraDto(
+                i.ProdutoId,
+                i.NomeProduto,
+                i.Quantidade,
+                i.CustoUnitario
+            ))
             .ToList();
 
         // Calcula valor total da compra
@@ -46,9 +44,8 @@ public sealed class ObterCompraPorIdHandler
         return new CompraDto
         {
             Id = compra.Id,
-            ClienteId = compra.ClienteId,
+            FornecedorId = compra.FornecedorId,
             FuncionarioId = compra.FuncionarioId,
-            CarrinhoId = compra.CarrinhoId,
             DataCompra = compra.DataCompra,
             Finalizada = compra.Finalizada,
             Itens = itensDto
