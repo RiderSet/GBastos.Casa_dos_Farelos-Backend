@@ -1,20 +1,17 @@
-﻿using GBastos.Casa_dos_Farelos.PagamentoService.Domain.Interfaces;
+﻿using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.PagamentoService.Domain.Common;
 
 public abstract class BaseEntity
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
+    public Guid Id { get; protected set; }
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    private readonly List<INotification> _domainEvents = new();
+    public IReadOnlyCollection<INotification> DomainEvents => _domainEvents;
 
-    protected void AddDomainEvent(IDomainEvent domainEvent)
-    {
-        _domainEvents.Add(domainEvent);
-    }
+    protected void AddDomainEvent(INotification eventItem)
+        => _domainEvents.Add(eventItem);
 
     public void ClearDomainEvents()
-    {
-        _domainEvents.Clear();
-    }
+        => _domainEvents.Clear();
 }

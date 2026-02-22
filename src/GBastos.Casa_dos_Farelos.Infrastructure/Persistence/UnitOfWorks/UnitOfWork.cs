@@ -1,4 +1,4 @@
-﻿using GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+﻿using GBastos.Casa_dos_Farelos.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.Infrastructure.Persistence.Context;
 
 namespace GBastos.Casa_dos_Farelos.Infrastructure.Persistence.UnitOfWorks;

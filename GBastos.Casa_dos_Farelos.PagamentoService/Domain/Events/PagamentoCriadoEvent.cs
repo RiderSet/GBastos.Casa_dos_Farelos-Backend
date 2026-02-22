@@ -1,6 +1,8 @@
-﻿namespace GBastos.Casa_dos_Farelos.PagamentoService.Domain.Events;
+﻿using GBastos.Casa_dos_Farelos.PagamentoService.Domain.Common;
 
-public record PagamentoCriadoEvent(
+namespace GBastos.Casa_dos_Farelos.PagamentoService.Domain.Events;
+
+public sealed record PagamentoCriadoEvent(
     Guid PagamentoId,
     Guid PedidoId,
     decimal Valor

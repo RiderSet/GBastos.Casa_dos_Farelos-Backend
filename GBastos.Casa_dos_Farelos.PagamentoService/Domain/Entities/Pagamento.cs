@@ -4,34 +4,120 @@ using GBastos.Casa_dos_Farelos.PagamentoService.Domain.Events;
 
 namespace GBastos.Casa_dos_Farelos.PagamentoService.Domain.Entities;
 
-public class Pagamento : AggregateRoot
+public sealed class Pagamento : AggregateRoot
 {
- // public Guid Id { get; private set; }
     public Guid PedidoId { get; private set; }
-    public decimal Valor { get; private set; }
+    public Guid ClienteId { get; private set; }
+
+    public string Moeda { get; private set; } = null!;
+    public string MetodoPagamento { get; private set; } = null!;
+    public string IdempotencyKey { get; private set; } = null!;
+
+    public decimal ValorPG { get; private set; }
+
+    public DateTime CriadoEmUtc { get; private set; }
+    public DateTime? ProcessadoEmUtc { get; private set; }
+
     public StatusPagamento Status { get; private set; }
+
+    public Pedido Pedido { get; private set; } = null!;
+    public Cliente Cliente { get; private set; } = null!;
 
     private Pagamento() { }
 
-    public Pagamento(Guid pedidoId, decimal valor)
+    public static Pagamento CriarPagamento(
+        Guid pedidoId,
+        Guid clienteId,
+        decimal valor,
+        string metodoPagamento,
+        string moeda)
     {
-        Id = Guid.NewGuid();
-        PedidoId = pedidoId;
-        Valor = valor;
-        Status = StatusPagamento.Pendente;
+        if (pedidoId == Guid.Empty)
+            throw new ArgumentException("PedidoId inválido.");
 
-        AddDomainEvent(new PagamentoCriadoEvent(Id, PedidoId, Valor));
+        if (clienteId == Guid.Empty)
+            throw new ArgumentException("ClienteId inválido.");
+
+        if (valor <= 0)
+            throw new ArgumentException("Valor deve ser maior que zero.");
+
+        if (string.IsNullOrWhiteSpace(metodoPagamento))
+            throw new ArgumentException("Método de pagamento inválido.");
+
+        if (string.IsNullOrWhiteSpace(moeda))
+            throw new ArgumentException("Moeda inválida.");
+
+        var pagamento = new Pagamento
+        {
+            Id = Guid.NewGuid(),
+            PedidoId = pedidoId,
+            ClienteId = clienteId,
+            ValorPG = valor,
+            MetodoPagamento = metodoPagamento,
+            Moeda = moeda,
+            Status = StatusPagamento.Pendente,
+            CriadoEmUtc = DateTime.UtcNow
+        };
+
+        pagamento.AddDomainEvent(
+            new PagamentoCriadoEvent(
+                pagamento.Id,
+                pagamento.PedidoId,
+                pagamento.ValorPG));
+
+        return pagamento;
     }
 
     public void Confirmar()
     {
+        if (Status != StatusPagamento.Pendente)
+            throw new InvalidOperationException("Pagamento já processado.");
+
         Status = StatusPagamento.Aprovado;
-        AddDomainEvent(new PagamentoAprovadoEvent(Id, PedidoId));
+        ProcessadoEmUtc = DateTime.UtcNow;
+
+        AddDomainEvent(
+            new PagamentoAprovadoEvent(Id, PedidoId, ClienteId, ValorPG));
     }
 
-    public void Recusar()
+    public void Recusar(string motivo)
     {
+        if (Status != StatusPagamento.Pendente)
+            throw new InvalidOperationException("Pagamento já processado.");
+
+        if (string.IsNullOrWhiteSpace(motivo))
+            throw new ArgumentException("Motivo é obrigatório.");
+
         Status = StatusPagamento.Recusado;
-        AddDomainEvent(new PagamentoRecusadoEvent(Id, PedidoId));
+        ProcessadoEmUtc = DateTime.UtcNow;
+
+        AddDomainEvent(
+            new PagamentoRecusadoEvent(Id, PedidoId, motivo));
+    }
+
+    public void AddIdempotencyKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new Exception("IdempotencyKey obrigatória");
+
+        IdempotencyKey = key;
+    }
+
+    internal static Pagamento CriarPedido(
+        Guid pedidoId,
+        decimal valor,
+        Guid clienteId)
+    {
+        return CriarPagamento(
+            pedidoId,
+            clienteId,
+            valor,
+            metodoPagamento: "PIX",
+            moeda: "BRL");
+    }
+
+    internal void PublishDomainEvents()
+    {
+        throw new NotImplementedException();
     }
 }

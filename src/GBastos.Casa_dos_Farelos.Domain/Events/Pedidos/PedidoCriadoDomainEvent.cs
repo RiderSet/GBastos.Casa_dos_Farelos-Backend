@@ -5,7 +5,8 @@ namespace GBastos.Casa_dos_Farelos.Domain.Events.Pedidos;
 public sealed record PedidoCriadoDomainEvent(
     Guid PedidoId,
     Guid ClienteId,
-    decimal Total
+    decimal Total,
+    DateTime CriadoEmUtc
 ) : IDomainEvent
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;

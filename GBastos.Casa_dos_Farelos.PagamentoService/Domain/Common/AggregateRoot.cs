@@ -2,7 +2,7 @@
 
 public abstract class AggregateRoot : BaseEntity
 {
-    public Guid Id { get; protected set; }
+ // public Guid Id { get; protected set; }
 
     protected AggregateRoot()
     {

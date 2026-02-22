@@ -21,7 +21,7 @@ public sealed class OutboxMessage : BaseEntity
         Id = id;
         EventName = eventName;
         Payload = payload;
-        ProcessedOnUtc = utcNow;
+        OccurredOnUtc = utcNow;
     }
 
     public static OutboxMessage Create(IDomainEvent domainEvent)

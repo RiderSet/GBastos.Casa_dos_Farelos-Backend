@@ -9,7 +9,7 @@ public sealed record PedidoCriadoIntegrationEvent(
     Guid Id,
     Guid PedidoId,
     Guid ClienteId,
-    decimal Total,
+    decimal ValorTotal,
     DateTime OccurredOnUtc
 ) : IIntegrationEvent
 {

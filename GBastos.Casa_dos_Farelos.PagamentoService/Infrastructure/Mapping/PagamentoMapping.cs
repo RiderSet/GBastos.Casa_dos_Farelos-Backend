@@ -9,7 +9,7 @@ public class PagamentoMapping : IEntityTypeConfiguration<Pagamento>
     public void Configure(EntityTypeBuilder<Pagamento> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Valor).HasPrecision(18, 2);
+        builder.Property(x => x.ValorPG).HasPrecision(18, 2);
         builder.Property(x => x.Status).HasConversion<int>();
     }
 }

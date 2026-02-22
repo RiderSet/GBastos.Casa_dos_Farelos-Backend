@@ -1,4 +1,4 @@
-﻿namespace GBastos.Casa_dos_Farelos.Infrastructure.Interfaces;
+﻿namespace GBastos.Casa_dos_Farelos.Application.Interfaces;
 
 public interface IUnitOfWork
 {
