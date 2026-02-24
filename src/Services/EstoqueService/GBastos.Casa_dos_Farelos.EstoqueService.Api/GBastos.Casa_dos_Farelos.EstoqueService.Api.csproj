@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.EstoqueService.Application\GBastos.Casa_dos_Farelos.EstoqueService.Application.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

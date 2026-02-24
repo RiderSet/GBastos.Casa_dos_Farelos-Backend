@@ -47,8 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\GBastos.Casa_dos_Farelos.Domain\GBastos.Casa_dos_Farelos.Domain.csproj" />
-    <ProjectReference Include="..\src\GBastos.Casa_dos_Farelos.Shared\GBastos.Casa_dos_Farelos.Shared.csproj" />
+    <ProjectReference Include="..\..\..\GBastos.Casa_dos_Farelos.Shared\GBastos.Casa_dos_Farelos.Shared.csproj" />
   </ItemGroup>
 
 </Project>
