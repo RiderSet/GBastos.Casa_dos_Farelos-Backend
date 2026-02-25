@@ -10,6 +10,9 @@ public sealed class OutboxMessage
     public DateTime OccurredOn { get; private set; } = DateTime.UtcNow;
     public DateTime? ProcessedOn { get; private set; }
 
+    public int RetryCount { get; private set; }
+    public string? Error { get; private set; }
+
     private OutboxMessage() { }
 
     public OutboxMessage(string type, string payload)
@@ -19,5 +22,16 @@ public sealed class OutboxMessage
     }
 
     public void MarkProcessed()
-        => ProcessedOn = DateTime.UtcNow;
+    {
+        ProcessedOn = DateTime.UtcNow;
+    }
+
+    public void MarkFailed(string error)
+    {
+        RetryCount++;
+        Error = error;
+    }
+
+    public bool IsDeadLetter(int maxRetries)
+        => RetryCount >= maxRetries;
 }

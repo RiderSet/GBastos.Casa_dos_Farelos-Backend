@@ -42,6 +42,17 @@ public class EstoqueDbContext : DbContext
             b.HasIndex(x => x.ExpiraEm);
         });
 
+        builder.Entity<OutboxMessage>(b =>
+        {
+            b.HasKey(x => x.Id);
+
+            b.HasIndex(x => x.ProcessedOn);
+            b.HasIndex(x => x.RetryCount);
+
+            b.Property(x => x.Type).IsRequired();
+            b.Property(x => x.Payload).IsRequired();
+        });
+
         base.OnModelCreating(builder);
     }
 }
