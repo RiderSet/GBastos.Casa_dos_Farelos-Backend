@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.Api\GBastos.Casa_dos_Farelos.Api.csproj" />
+    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.Api\GBastos.Casa_dos_Farelos.Gateway.csproj" />
     <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.Application\GBastos.Casa_dos_Farelos.Application.csproj" />
   </ItemGroup>
 
