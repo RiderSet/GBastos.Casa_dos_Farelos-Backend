@@ -1,0 +1,62 @@
+﻿using GBastos.Casa_dos_Farelos.SharedKernel.Exceptions;
+
+namespace GBastos.Casa_dos_Farelos.CadastroService.Domain.Entities;
+
+public abstract class Pessoa
+{
+    public Guid Id { get; protected set; } = Guid.NewGuid();
+
+    public string Telefone { get; protected set; } = null!;
+    public string Nome { get; protected set; } = null!;
+    public string Email { get; protected set; } = null!;
+    public DateTime DtCadastro { get; protected set; }
+
+    protected Pessoa() { }
+
+    protected Pessoa(string nome, string telefone, string email)
+    {
+        SetNome(nome);
+        SetTelefone(telefone);
+        SetEmail(email);
+        DtCadastro = DateTime.UtcNow;
+    }
+
+    public void SetNome(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new DomainException("Nome é obrigatório");
+
+        Nome = nome.Trim();
+    }
+
+    public void SetTelefone(string telefone)
+    {
+        if (string.IsNullOrWhiteSpace(telefone))
+            throw new DomainException("Telefone não informado.");
+
+        Telefone = telefone.Trim();
+    }
+
+    public void SetEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new DomainException("Email obrigatório");
+
+        Email = email.Trim().ToLower();
+    }
+
+    public void SetDtCadastro(DateTime dtCadastro)
+    {
+        if (string.IsNullOrWhiteSpace(dtCadastro.ToString()))
+            throw new DomainException("Email obrigatório");
+
+        DtCadastro = dtCadastro;
+    }
+
+    public virtual void Atualizar(string nomefantasia, string telefone, string email)
+    {
+        SetNome(nomefantasia);
+        SetTelefone(telefone);
+        SetEmail(email);
+    }
+}

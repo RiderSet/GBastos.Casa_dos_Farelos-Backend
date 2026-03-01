@@ -1,5 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.EstoqueService.Application.Commands;
-using GBastos.Casa_dos_Farelos.PagamentoService.Domain.Events;
+using GBastos.Casa_dos_Farelos.PagamentoService.Domain.Events.Pagamentos;
 using MassTransit;
 using MediatR;
 

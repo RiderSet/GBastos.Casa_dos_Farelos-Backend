@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Infrastructure\GBastos.Casa_dos_Farelos.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

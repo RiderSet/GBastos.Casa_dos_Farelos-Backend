@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.CadastroService.Domain\GBastos.Casa_dos_Farelos.CadastroService.Domain.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.Messaging\GBastos.Casa_dos_Farelos.Messaging.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.SharedKernel\GBastos.Casa_dos_Farelos.SharedKernel.csproj" />
+    <ProjectReference Include="..\Services\EstoqueService\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

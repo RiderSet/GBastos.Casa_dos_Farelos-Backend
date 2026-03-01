@@ -1,5 +1,5 @@
 ﻿using GBastos.Casa_dos_Farelos.EstoqueService.Application.Interfaces;
-using GBastos.Casa_dos_Farelos.EstoqueService.Domain.Entities;
+using GBastos.Casa_dos_Farelos.EstoqueService.Domain.Aggregates;
 using GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

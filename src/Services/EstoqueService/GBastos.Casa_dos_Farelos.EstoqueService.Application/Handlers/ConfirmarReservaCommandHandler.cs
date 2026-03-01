@@ -1,6 +1,7 @@
 ﻿using GBastos.Casa_dos_Farelos.EstoqueService.Application.Commands;
 using GBastos.Casa_dos_Farelos.EstoqueService.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.EstoqueService.Domain.Events;
+using GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.Interfaces;
 using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.EstoqueService.Application.Handlers;

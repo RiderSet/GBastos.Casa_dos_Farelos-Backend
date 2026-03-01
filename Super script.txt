@@ -1,0 +1,75 @@
+🧹 Super script PowerShell — clean-all.ps1
+
+
+
+
+Crie um arquivo na raiz da solution chamado:
+	clean-all.ps1
+
+
+
+Cole isso dentro:
+
+	Write-Host "===============================" -ForegroundColor Cyan
+	Write-Host "LIMPEZA TOTAL DA SOLUTION" -ForegroundColor Cyan
+	Write-Host "===============================" -ForegroundColor Cyan
+
+	Write-Host "`nRemovendo pastas bin e obj..." -ForegroundColor Yellow
+
+	Get-ChildItem -Recurse -Directory -Include bin,obj |
+	ForEach-Object {
+		Write-Host "Removendo $($_.FullName)" -ForegroundColor DarkGray
+		Remove-Item -Recurse -Force -Path $_.FullName
+	}
+
+	Write-Host "`nLimpando cache do NuGet..." -ForegroundColor Yellow
+	dotnet nuget locals all --clear
+
+	Write-Host "`nExecutando dotnet clean..." -ForegroundColor Yellow
+	dotnet clean
+
+	Write-Host "`nExecutando dotnet restore..." -ForegroundColor Yellow
+	dotnet restore
+
+	Write-Host "`nExecutando dotnet build..." -ForegroundColor Yellow
+	dotnet build
+
+	Write-Host "`n===============================" -ForegroundColor Green
+	Write-Host "LIMPEZA FINALIZADA COM SUCESSO" -ForegroundColor Green
+	Write-Host "===============================" -ForegroundColor Green
+
+
+
+🚀 Como executar
+
+
+Na raiz do projeto:
+	.\clean-all.ps1
+
+Se der erro de permissão:
+	Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+
+Depois execute novamente.
+
+
+
+🔥 Versão Ultra (com exclusão de .vs e TestResults)
+
+Se quiser algo ainda mais completo, substitua o bloco de remoção por:
+
+	Get-ChildItem -Recurse -Directory -Include bin,obj,.vs,TestResults |
+	Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+	
+	
+🧠 Dica de arquiteto
+
+Use esse script sempre que:
+  - Mudar namespaces grandes
+  - Mover projetos entre pastas
+  - Alterar TargetFramework
+  - Corrigir conflitos de assembly
+  - Resolver erro estranho de DI
+  
+
+Isso evita 90% dos bugs fantasmas do .NET.

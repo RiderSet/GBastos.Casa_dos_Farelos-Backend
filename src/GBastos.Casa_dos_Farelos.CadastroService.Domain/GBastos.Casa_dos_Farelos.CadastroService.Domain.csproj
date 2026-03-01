@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="11.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.CadastroService.Application\GBastos.Casa_dos_Farelos.CadastroService.Application.csproj" />
+    <ProjectReference Include="..\GBastos.Casa_dos_Farelos.SharedKernel\GBastos.Casa_dos_Farelos.SharedKernel.csproj" />
+    <ProjectReference Include="..\Services\EstoqueService\GBastos.Casa_dos_Farelos.EstoqueService.Domain\GBastos.Casa_dos_Farelos.EstoqueService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

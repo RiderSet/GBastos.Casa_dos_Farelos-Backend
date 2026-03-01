@@ -1,9 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using System.Net;
 using System.Net.Http.Json;
-using static GBastos.Casa_dos_Farelos.Api.Endpoints.Produtos.ProdutoEndpoints;
 
 namespace GBastos.Casa_dos_Farelos.Tests.Application.Integration.Produtos;
 

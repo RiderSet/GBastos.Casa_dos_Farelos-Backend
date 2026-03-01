@@ -1,18 +1,18 @@
-﻿
-using GBastos.Casa_dos_Farelos.EstoqueService.Domain.Entities;
+﻿using GBastos.Casa_dos_Farelos.EstoqueService.Domain.Entities;
+using GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.Persistence.Context;
 
 public class EstoqueDbContext : DbContext
 {
+    public EstoqueDbContext(DbContextOptions<EstoqueDbContext> opt)
+        : base(opt) { }
+
     public DbSet<Reserva> Reservas => Set<Reserva>();
     public DbSet<ProdutoEstoque> Produtos => Set<ProdutoEstoque>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
-
-    public EstoqueDbContext(DbContextOptions<EstoqueDbContext> opt)
-        : base(opt) { }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -21,7 +21,7 @@ public class EstoqueDbContext : DbContext
             b.HasKey(x => x.Id);
             b.Property(x => x.Type).IsRequired();
             b.Property(x => x.Payload).IsRequired();
-            b.HasIndex(x => x.ProcessedOn);
+            b.HasIndex(x => x.ProcessedOnUtc);
         });
 
         builder.Entity<IdempotencyKey>(b =>
@@ -46,8 +46,8 @@ public class EstoqueDbContext : DbContext
         {
             b.HasKey(x => x.Id);
 
-            b.HasIndex(x => x.ProcessedOn);
-            b.HasIndex(x => x.RetryCount);
+            b.HasIndex(x => x.ProcessedOnUtc);
+            b.HasIndex(x => x. RetryCount);
 
             b.Property(x => x.Type).IsRequired();
             b.Property(x => x.Payload).IsRequired();

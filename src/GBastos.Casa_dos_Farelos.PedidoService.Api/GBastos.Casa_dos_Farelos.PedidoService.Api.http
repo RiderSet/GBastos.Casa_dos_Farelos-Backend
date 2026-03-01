@@ -1,0 +1,6 @@
+@GBastos.Casa_dos_Farelos.PedidoService.Api_HostAddress = http://localhost:5221
+
+GET {{GBastos.Casa_dos_Farelos.PedidoService.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -3,9 +3,9 @@ using MediatR;
 
 namespace GBastos.Casa_dos_Farelos.EstoqueService.Application.Behavior;
 
-public class ValidationBehavior<TRequest, TResponse>
+public sealed class ValidationBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -28,7 +28,7 @@ public class ValidationBehavior<TRequest, TResponse>
 
             var failures = validationResults
                 .SelectMany(r => r.Errors)
-                .Where(f => f != null)
+                .Where(f => f is not null)
                 .ToList();
 
             if (failures.Count != 0)

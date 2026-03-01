@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\PagamentoService\GBastos.Casa_dos_Farelos.PagamentoService\GBastos.Casa_dos_Farelos.PagamentoService.csproj" />
+    <ProjectReference Include="..\..\PagamentoService\GBastos.Casa_dos_Farelos.PagamentoService\GBastos.Casa_dos_Farelos.PagamentoService.Api.csproj" />
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.EstoqueService.Application\GBastos.Casa_dos_Farelos.EstoqueService.Application.csproj" />
   </ItemGroup>
 

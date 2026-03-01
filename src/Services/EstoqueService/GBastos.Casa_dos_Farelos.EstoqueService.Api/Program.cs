@@ -2,6 +2,7 @@ using FluentValidation;
 using GBastos.Casa_dos_Farelos.EstoqueService.Api.Endpoints;
 using GBastos.Casa_dos_Farelos.EstoqueService.Application.Behavior;
 using GBastos.Casa_dos_Farelos.EstoqueService.Application.DependencyInjections;
+using GBastos.Casa_dos_Farelos.EstoqueService.Application.Interfaces;
 using GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.Outbox;
 using MassTransit;
 using MediatR;
@@ -30,6 +31,8 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(ctx);
     });
 });
+
+builder.Services.AddSingleton<IEventTypeResolver, EventTypeResolver>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

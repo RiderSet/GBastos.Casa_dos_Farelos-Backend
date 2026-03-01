@@ -8,11 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="MediatR" Version="14.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\GBastos.Casa_dos_Farelos.SharedKernel\GBastos.Casa_dos_Farelos.SharedKernel.csproj" />
     <ProjectReference Include="..\GBastos.Casa_dos_Farelos.EstoqueService.Domain\GBastos.Casa_dos_Farelos.EstoqueService.Domain.csproj" />
   </ItemGroup>
 

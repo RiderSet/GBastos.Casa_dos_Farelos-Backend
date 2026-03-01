@@ -13,17 +13,19 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.CadastroService.Infrastructure\GBastos.Casa_dos_Farelos.CadastroService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.ComprasService.Infrastructure\GBastos.Casa_dos_Farelos.ComprasService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.PagamentoService.Infrastructure.csproj\GBastos.Casa_dos_Farelos.PagamentoService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.RelatorioService.Infrastructure\GBastos.Casa_dos_Farelos.RelatorioService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Services\EstoqueService\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure\GBastos.Casa_dos_Farelos.EstoqueService.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.Api\GBastos.Casa_dos_Farelos.Gateway.csproj" />
-    <ProjectReference Include="..\..\src\GBastos.Casa_dos_Farelos.Application\GBastos.Casa_dos_Farelos.Application.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
 </Project>
